@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1091304297452",
+    "project_id": "totsparis-35464",
+    "storage_bucket": "totsparis-35464.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1091304297452:android:d9af952dc797ba00ae66c9",
+        "android_client_info": {
+          "package_name": "com.dv.totsparis"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1091304297452-soijb2d6r9c0porua5r5gos0qp4ds5tt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuUZkBVNiYHam_lJ2ouA7z0AIwowfonNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1091304297452-soijb2d6r9c0porua5r5gos0qp4ds5tt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
