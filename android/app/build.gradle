@@ -6,6 +6,12 @@ plugins {
     id "com.google.gms.google-services"
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.dv.totsparis"
     compileSdk = flutter.compileSdkVersion
@@ -33,13 +39,21 @@ android {
         multiDexEnabled true
     }
 
+    signingConfigs {
+        release {
+            keyAlias "my-release-key"
+            keyPassword "shashi123"
+            // Path relative to this build.gradle file (android/app/)
+            storeFile file("../../release/totsparis.keystore")
+            storePassword "shashi123"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false  // Disable code shrinking and obfuscation
             shrinkResources false  // Disable resource shrinking
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
         }
     }
 }
