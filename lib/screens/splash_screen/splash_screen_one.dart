@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:maanstore/const/constants.dart';
 import 'package:maanstore/generated/l10n.dart' as lang;
-import 'package:maanstore/screens/splash_screen/splash_screen_two.dart';
+import 'package:maanstore/screens/auth_screen/auth_screen_1.dart';
 import 'package:maanstore/screens/home_screens/home.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -32,7 +32,7 @@ class _SplashScreenOneState extends State<SplashScreenOne> {
         const Home().launch(context, isNewTask: true);
       } else {
         if (!mounted) return;
-        const SplashScreenTwo().launch(context, isNewTask: true);
+        const AuthScreen().launch(context, isNewTask: true);
       }
     } else {
       showLicense(context: context);
@@ -51,7 +51,7 @@ class _SplashScreenOneState extends State<SplashScreenOne> {
     return Directionality(
       textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
-        backgroundColor: kPrimaryColor,
+        backgroundColor: Colors.white,
         body: Center(
           child: Column(
             children: [
@@ -69,33 +69,8 @@ class _SplashScreenOneState extends State<SplashScreenOne> {
                   image: AssetImage('images/storelogo.png'),
                 ),
               ),
-
+              
               const Spacer(),
-              Column(
-                children: [
-                   Text(
-                    'Tots Paris',
-                    style: GoogleFonts.dmSans(
-                      textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                   Text(
-                    'Version 1.0.0',
-                    style: GoogleFonts.dmSans(
-                      textStyle: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 35),
             ],
           ),
         ),

@@ -258,6 +258,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         buttonColor: const Color(0xFFFF7F00),
                         onPressFunction: () async {
                           if (validateAndSave()) {
+                            final successText = lang.S.of(context).easyLoadingSuccess;
+                            final errorText = lang.S.of(context).easyLoadingError;
+                            
                             EasyLoading.show(status: lang.S.of(context).updateHint);
                             // Call apiService inside try-catch to handle potential errors
                             try {
@@ -268,16 +271,16 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                               );
 
                               if (value) {
-                                EasyLoading.showSuccess(lang.S.of(context).easyLoadingSuccess);
+                                EasyLoading.showSuccess(successText);
                                 ref.refresh(getCustomerDetails);
                                 if (context.mounted) {
                                   Navigator.pop(context); // Go back to profile
                                 }
                               } else {
-                                EasyLoading.showError(lang.S.of(context).easyLoadingError);
+                                EasyLoading.showError(errorText);
                               }
                             } catch (e) {
-                              EasyLoading.showError(lang.S.of(context).easyLoadingError);
+                              EasyLoading.showError(errorText);
                             }
                           }
                         },

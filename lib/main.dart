@@ -285,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                         ///_____Change_password_____________________________
                         Visibility(
-                          visible: false,
+                          visible: true,
                           child: Container(
                             decoration: const BoxDecoration(
                                 border: Border(

@@ -50,4 +50,5 @@ flutter {
 
 dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.browser:browser:1.8.0'
 }

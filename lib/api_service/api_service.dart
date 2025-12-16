@@ -781,21 +781,27 @@ class APIService {
     return review;
   }
 
-  Future<void> sentOtp(String phoneNumber, BuildContext context) async {
+  Future<void> sentOtp(String phoneNumber, BuildContext context, {int? forceResendingToken}) async {
     await _auth.verifyPhoneNumber(
       phoneNumber: phoneNumber,
+      timeout: const Duration(seconds: 60),
+      forceResendingToken: forceResendingToken,
       verificationCompleted: (PhoneAuthCredential credential) async {
         await _auth.signInWithCredential(credential);
         const Home().launch(context, isNewTask: true);
       },
       verificationFailed: (FirebaseAuthException e) {
         if (kDebugMode) {
-          print("Verification Failed: ${e.message}");
+          print("Verification Failed: ${e.code} - ${e.message}");
         }
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Verification Failed: ${e.message}")));
       },
       codeSent: (String verificationId, int? resendToken) {
-        OtpVerificationScreen(verificationId: verificationId).launch(context);
+        OtpVerificationScreen(
+          verificationId: verificationId,
+          phoneNumber: phoneNumber,
+          resendToken: resendToken,
+        ).launch(context);
       },
       codeAutoRetrievalTimeout: (String verificationId) {},
     );

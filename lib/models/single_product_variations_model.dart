@@ -10,6 +10,7 @@ class SingleProductVariations {
     this.inStock,
     this.image,
     this.attributes,
+    this.variationGalleryImages,
   });
 
   int? id;
@@ -20,6 +21,7 @@ class SingleProductVariations {
   bool? inStock;
   Images? image;
   List<Attribute>? attributes;
+  List<Images>? variationGalleryImages;
 
   factory SingleProductVariations.fromJson(dynamic json) => SingleProductVariations(
         id: json["id"],
@@ -28,8 +30,9 @@ class SingleProductVariations {
         regularPrice: json["regular_price"],
         salePrice: json["sale_price"],
         inStock: json["in_stock"],
-        image: Images.fromJson(json["image"]),
-        attributes: List<Attribute>.from(json["attributes"].map((x) => Attribute.fromJson(x))),
+        image: json["image"] != null ? Images.fromJson(json["image"]) : null,
+        attributes: json["attributes"] != null ? List<Attribute>.from(json["attributes"].map((x) => Attribute.fromJson(x))) : [],
+        variationGalleryImages: json["variation_gallery_images"] != null ? List<Images>.from(json["variation_gallery_images"].map((x) => Images.fromJson(x))) : [],
       );
 
   Map<String, dynamic> toJson() => {
@@ -41,6 +44,7 @@ class SingleProductVariations {
         "in_stock": inStock,
         "image": image!.toJson(),
         "attributes": List<dynamic>.from(attributes!.map((x) => x.toJson())),
+        "variation_gallery_images": variationGalleryImages != null ? List<dynamic>.from(variationGalleryImages!.map((x) => x.toJson())) : [],
       };
 }
 

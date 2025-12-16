@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1091304297452-tcpsl1gntltn27d9qqn5ke1qd7sa8c5s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dv.totsparis",
+            "certificate_hash": "673668d2ba9e5fc088cbdbfbaebb41e10f54f7a9"
+          }
+        },
+        {
           "client_id": "1091304297452-soijb2d6r9c0porua5r5gos0qp4ds5tt.apps.googleusercontent.com",
           "client_type": 3
         }
