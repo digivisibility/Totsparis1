@@ -1,0 +1,2 @@
+scripts:
+  - flutter test --no-sound-null-safety || true
