@@ -1,2 +1,15 @@
-scripts:
-  - flutter test --no-sound-null-safety || true
+workflows:
+  ios-release:
+    name: iOS App Store Release
+    instance_type: mac_mini_m2 # This is your "Cloud Mac"
+    integrations:
+      app_store_connect: Tots Paris
+    scripts:
+      - name: Build iOS IPA
+        script: | 
+          # For Flutter apps
+          flutter build ipa --release --export-options-plist=$HOME/export_options.plist
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true # Starts by sending it to TestFlight
