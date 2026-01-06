@@ -1,15 +1,24 @@
 workflows:
   ios-release:
     name: iOS App Store Release
-    instance_type: mac_mini_m2 # This is your "Cloud Mac"
+    instance_type: mac_mini_m2
     integrations:
       app_store_connect: Tots Paris1
     scripts:
+      - name: Set up keychain
+        script: keychain initialize
+      - name: Fetch signing files
+        script: |
+          # This pulls your certificate and profile from Apple
+          # Use --create to let Codemagic generate them if they are missing
+          app-store-connect fetch-signing-files "com.dv.totsparis" --type IOS_APP_STORE --create
+      - name: Set up code signing settings
+        script: xcode-project use-profiles
       - name: Build iOS IPA
         script: | 
-          # For Flutter apps
+          # Removed --debug; you must use --release for the App Store
           flutter build ipa --release --export-options-plist=$HOME/export_options.plist
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true # Starts by sending it to TestFlight
+        submit_to_testflight: true
