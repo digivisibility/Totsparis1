@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Maan Store Woocommerce Full App</string>
+	<string>Tots Paris</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>maan_store_woocommerce_full_app</string>
+	<string>tots_paris</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -28,6 +28,14 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>Tots Paris needs camera access to let you take photos for your profile and scan product QR codes.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Tots Paris needs access to your photos so you can upload and share images within the app.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Tots Paris needs microphone access for voice-based search and video features.</string>
+
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
