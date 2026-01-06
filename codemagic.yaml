@@ -2,23 +2,55 @@ workflows:
   ios-release:
     name: iOS App Store Release
     instance_type: mac_mini_m2
+    max_build_duration: 60
     integrations:
-      app_store_connect: Tots Paris1
+      app_store_connect: Tots Paris1 # Must match the name in Codemagic UI
+    
+    environment:
+      groups:
+        - apple_auth # (Optional) If you used a variable group for credentials
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
     scripts:
       - name: Set up keychain
-        script: keychain initialize
+        script: |
+          keychain initialize
+      
       - name: Fetch signing files
         script: |
-          # This pulls your certificate and profile from Apple
-          # Use --create to let Codemagic generate them if they are missing
+          # Downloads your certificates and profiles from Apple
           app-store-connect fetch-signing-files "com.dv.totsparis" --type IOS_APP_STORE --create
+      
+      - name: Add certificates to keychain
+        script: |
+          keychain add-certificates
+      
       - name: Set up code signing settings
-        script: xcode-project use-profiles
+        script: |
+          xcode-project use-profiles
+      
+      - name: Install dependencies
+        script: |
+          flutter packages pub get
+          # If you have pods, uncomment the line below:
+          # cd ios && pod install && cd ..
+      
       - name: Build iOS IPA
         script: | 
-          # Removed --debug; you must use --release for the App Store
-          flutter build ipa --release --export-options-plist=$HOME/export_options.plist
+          # Building the release version for the App Store
+          flutter build ipa --release \
+            --bundle-name="Tots Paris" \
+            --export-options-plist=$HOME/export_options.plist
+            
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
+        submit_to_testflight: true # Sends build to TestFlight automatically
+        beta_groups:
+          - Internal Testers # (Optional) Name of your group in App Store Connect
