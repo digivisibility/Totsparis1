@@ -3,7 +3,7 @@ workflows:
     name: iOS App Store Release
     instance_type: mac_mini_m2 # This is your "Cloud Mac"
     integrations:
-      app_store_connect: Your_API_Key_Name
+      app_store_connect: Tots Paris1
     scripts:
       - name: Build iOS IPA
         script: | 
