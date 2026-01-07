@@ -29,6 +29,9 @@
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
