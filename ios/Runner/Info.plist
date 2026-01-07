@@ -48,8 +48,12 @@
 	<string>Tots Paris needs camera access to let you take photos for your profile and scan product QR codes.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Tots Paris needs access to your photos so you can upload and share images within the app.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Tots Paris needs permission to save photos to your library.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Tots Paris needs microphone access for voice-based search and video features.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Tots Paris needs access to music library for media playback features.</string>
 
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
