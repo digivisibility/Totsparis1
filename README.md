@@ -1,4 +1,4 @@
-# maanstore
+# TOTS
 
 A new Flutter project.
 
