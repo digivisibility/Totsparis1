@@ -5,16 +5,16 @@ workflows:
     max_build_duration: 60
     
     integrations:
-      app_store_connect: Tots Paris1 # Ensure this matches your Codemagic Team Integration name
+      app_store_connect: Tots Paris1 # Double-check this name in Codemagic UI
 
     environment:
       groups:
-        - apple_auth        # Group containing your Apple API keys
-        - firebase_config   # Group containing IOS_FIREBASE_SECRET
+        - apple_auth       # Group containing your Apple API keys
+        - firebase_config  # Group containing IOS_FIREBASE_SECRET
       vars:
         BUNDLE_ID: "com.dv.totsparis"
-      flutter: stable
-      xcode: latest
+      flutter: 3.24.4     # Pinned for stability
+      xcode: 16.1         # Pinned for stability
       cocoapods: default
 
     scripts:
@@ -26,12 +26,13 @@ workflows:
         script: |
           #!/usr/bin/env sh
           set -e
-          # Recreate the plist file from the secret variable to prevent startup crash
+          # Ensure directory exists and recreate the plist from the secret
+          mkdir -p $CM_BUILD_DIR/ios/Runner
           echo "$IOS_FIREBASE_SECRET" > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
 
       - name: Fetch signing files
         script: |
-          # Automatically manages certificates and profiles for your bundle ID
+          # Automatically manages certificates and profiles
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
 
       - name: Add certificates to keychain
@@ -45,12 +46,13 @@ workflows:
       - name: Install dependencies
         script: |
           flutter packages pub get
-          # Mandatory for OneSignal and Firebase on iOS
-          cd ios && pod install && cd ..
+          cd ios
+          pod install --repo-update
+          cd ..
 
       - name: Build iOS IPA
         script: | 
-          # Build with automatic versioning to avoid App Store rejection
+          # PROJECT_BUILD_NUMBER ensures you never upload the same version twice
           flutter build ipa --release \
             --bundle-name="Tots Paris" \
             --build-name=1.0.$PROJECT_BUILD_NUMBER \
@@ -65,4 +67,3 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-        # Optional: Add your beta_groups here
