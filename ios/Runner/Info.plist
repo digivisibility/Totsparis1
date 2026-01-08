@@ -53,6 +53,12 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Tots Paris needs microphone access for voice-based search and video features.</string>
 	<key>NSAppleMusicUsageDescription</key>
+<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Tots Paris uses your location to show you the nearest delivery options and store locations.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Tots Paris uses your location to provide accurate order tracking and delivery updates.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Tots Paris uses your location to keep you notified of your delivery status even when the app is in the background.</string>
 	<string>Tots Paris needs access to music library for media playback features.</string>
 
 	<key>UISupportedInterfaceOrientations</key>
