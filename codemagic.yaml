@@ -5,7 +5,7 @@ workflows:
     max_build_duration: 120
     
     integrations:
-      app_store_connect: Tots Paris1
+      app_store_connect: Tots Paris1 
 
     environment:
       groups:
@@ -18,20 +18,6 @@ workflows:
       cocoapods: default
 
     scripts:
-      - name: Force iOS 15.0 Deployment Target
-        script: |
-          # 1. Update the Podfile platform
-          sed -i '' "s/^# platform :ios, '.*'/platform :ios, '15.0'/" ios/Podfile
-          sed -i '' "s/^platform :ios, '.*'/platform :ios, '15.0'/" ios/Podfile
-          
-          # 2. Update all occurrences in the Xcode Project file
-          find ios/Runner.xcodeproj/project.pbxproj -type f -exec sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' {} +
-          
-          # 3. Force the minimum version in Info.plist
-          if [ -f ios/Runner/Info.plist ]; then
-            sed -i '' '/MinimumOSVersion/{n;s/<string>.*<\/string>/<string>15.0<\/string>/;}' ios/Runner/Info.plist
-          fi
-
       - name: Set up keychain
         script: |
           keychain initialize
@@ -40,6 +26,15 @@ workflows:
         script: |
           mkdir -p $CM_BUILD_DIR/ios/Runner
           echo "$IOS_FIREBASE_SECRET" > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
+
+      - name: Force iOS 15.0 in Project Files
+        script: |
+          # 1. Edit Podfile: Change platform to 15.0 (handles commented and uncommented lines)
+          sed -i '' "s/^# platform :ios, .*/platform :ios, '15.0'/" ios/Podfile
+          sed -i '' "s/^platform :ios, .*/platform :ios, '15.0'/" ios/Podfile
+          
+          # 2. Edit Xcode Project: Force all target versions to 15.0
+          find ios/Runner.xcodeproj/project.pbxproj -type f -exec sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' {} +
 
       - name: Fetch signing files
         script: |
@@ -57,18 +52,14 @@ workflows:
         script: |
           flutter packages pub get
           cd ios
-          # FORCE the Podfile to iOS 15.0
-          # This replaces the platform line even if it is commented out
-          sed -i '' "s/^.*platform :ios.*/platform :ios, '15.0'/" Podfile
-          
-          # Clean and install
+          # Deep clean to ensure the 15.0 change is recognized
           rm -rf Pods Podfile.lock
           pod install --repo-update
           cd ..
 
       - name: Build iOS IPA
         script: | 
-          # MUST be --release for App Store Connect
+          # Using --release is mandatory; --debug will cause version mismatch errors
           flutter build ipa --release \
             --build-name=1.0.$PROJECT_BUILD_NUMBER \
             --build-number=$PROJECT_BUILD_NUMBER \
