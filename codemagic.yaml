@@ -3,12 +3,16 @@ workflows:
     name: iOS App Store Release
     instance_type: mac_mini_m2
     max_build_duration: 60
-    integrations:
-      app_store_connect: Tots Paris1 # Must match the name in Codemagic UI
     
+    integrations:
+      app_store_connect: Tots Paris1 # Ensure this matches your Codemagic Team Integration name
+
     environment:
       groups:
-        - apple_auth # (Optional) If you used a variable group for credentials
+        - apple_auth        # Group containing your Apple API keys
+        - firebase_config   # Group containing IOS_FIREBASE_SECRET
+      vars:
+        BUNDLE_ID: "com.dv.totsparis"
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -17,31 +21,40 @@ workflows:
       - name: Set up keychain
         script: |
           keychain initialize
-      
+
+      - name: Load Firebase configuration
+        script: |
+          #!/usr/bin/env sh
+          set -e
+          # Recreate the plist file from the secret variable to prevent startup crash
+          echo "$IOS_FIREBASE_SECRET" > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
+
       - name: Fetch signing files
         script: |
-          # Downloads your certificates and profiles from Apple
-          app-store-connect fetch-signing-files "com.dv.totsparis" --type IOS_APP_STORE --create
-      
+          # Automatically manages certificates and profiles for your bundle ID
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+
       - name: Add certificates to keychain
         script: |
           keychain add-certificates
-      
+
       - name: Set up code signing settings
         script: |
           xcode-project use-profiles
-      
+
       - name: Install dependencies
         script: |
           flutter packages pub get
-          # If you have pods, uncomment the line below:
-          # cd ios && pod install && cd ..
-      
+          # Mandatory for OneSignal and Firebase on iOS
+          cd ios && pod install && cd ..
+
       - name: Build iOS IPA
         script: | 
-          # Building the release version for the App Store
+          # Build with automatic versioning to avoid App Store rejection
           flutter build ipa --release \
             --bundle-name="Tots Paris" \
+            --build-name=1.0.$PROJECT_BUILD_NUMBER \
+            --build-number=$PROJECT_BUILD_NUMBER \
             --export-options-plist=$HOME/export_options.plist
             
     artifacts:
@@ -51,6 +64,5 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true # Sends build to TestFlight automatically
-        beta_groups:
-          - Internal Testers # (Optional) Name of your group in App Store Connect
+        submit_to_testflight: true
+        # Optional: Add your beta_groups here
