@@ -1,75 +1,60 @@
 workflows:
   ios-release:
-    name: iOS App Store Release
+    name: iOS Release Workflow
+    max_build_duration: 60
     instance_type: mac_mini_m2
-    max_build_duration: 120
-    
-    integrations:
-      app_store_connect: Tots Paris1 
-
     environment:
       groups:
-        - apple_auth       
-        - firebase_config  
-      vars:
-        BUNDLE_ID: "com.dv.totsparis"
-      flutter: 3.24.4     
-      xcode: 16.1         
+        # 1. Create a group in Codemagic UI called "app_store_credentials"
+        # 2. Add: APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER, 
+        #    APP_STORE_CONNECT_PRIVATE_KEY (the .p8 content), and APP_ID
+        - app_store_credentials 
+      flutter: stable
+      xcode: latest # This ensures you are on the latest stable (e.g., 16.x or 26.x in your logs)
       cocoapods: default
-
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
     scripts:
-      - name: Set up keychain
+      - name: Set up keychain to be used for codesigning
         script: |
           keychain initialize
-
-      - name: Load Firebase configuration
-        script: |
-          mkdir -p $CM_BUILD_DIR/ios/Runner
-          echo "$IOS_FIREBASE_SECRET" > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
-
-      - name: Force iOS 15.0 in Project Files
-        script: |
-          # 1. Edit Podfile: Change platform to 15.0 (handles commented and uncommented lines)
-          sed -i '' "s/^# platform :ios, .*/platform :ios, '15.0'/" ios/Podfile
-          sed -i '' "s/^platform :ios, .*/platform :ios, '15.0'/" ios/Podfile
-          
-          # 2. Edit Xcode Project: Force all target versions to 15.0
-          find ios/Runner.xcodeproj/project.pbxproj -type f -exec sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' {} +
-
       - name: Fetch signing files
         script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
-
+          # Detects bundle ID from your project and fetches/creates profiles
+          app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
+            --platform IOS \
+            --type IOS_APP_STORE \
+            --create
       - name: Add certificates to keychain
         script: |
           keychain add-certificates
-
-      - name: Set up code signing settings
+      - name: Set up code signing settings on Xcode project
         script: |
           xcode-project use-profiles
-
-      - name: Install dependencies
+      - name: Install Flutter dependencies and fix Pods
         script: |
-          flutter packages pub get
+          flutter clean
+          flutter pub get
           cd ios
-          # Deep clean to ensure the 15.0 change is recognized
-          rm -rf Pods Podfile.lock
+          # Force a fresh pod install to pick up Podfile fixes for SSLCommerz
+          rm -rf Pods
+          rm -f Podfile.lock
           pod install --repo-update
           cd ..
-
-      - name: Build iOS IPA
-        script: | 
-          # Using --release is mandatory; --debug will cause version mismatch errors
+      - name: Build iOS IPA (Release Mode)
+        script: |
+          # IMPORTANT: We use --release to avoid the App Store 'debug' error
           flutter build ipa --release \
-            --build-name=1.0.$PROJECT_BUILD_NUMBER \
-            --build-number=$PROJECT_BUILD_NUMBER \
+            --build-number=$BUILD_NUMBER \
             --export-options-plist=$HOME/export_options.plist
-            
     artifacts:
       - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-
     publishing:
       app_store_connect:
         auth: integration
+        # This will automatically upload the IPA to TestFlight
         submit_to_testflight: true
