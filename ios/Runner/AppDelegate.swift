@@ -1,7 +1,6 @@
-// Final check for your AppDelegate.swift
 import UIKit
 import Flutter
-import Firebase 
+import Firebase // Add this line
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -9,8 +8,7 @@ import Firebase
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // This MUST come before GeneratedPluginRegistrant
-    FirebaseApp.configure() 
+    FirebaseApp.configure() // MUST BE FIRST
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
