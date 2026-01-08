@@ -30,33 +30,51 @@ import 'models/add_to_cart_model.dart';
 import 'Providers/wishlist_provider.dart';
 
 Future<void> main() async {
+  // 1. Ensure Flutter is ready
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String savedTheme = prefs.getString('theme') ?? 'system';
-  savedTheme == 'light'
-      ? _themeManager.toggleTheme(false)
-      : _themeManager.toggleTheme(true);
-  savedTheme == 'dark'
-      ? _themeManager.toggleTheme(true)
-      : _themeManager.toggleTheme(false);
-  savedTheme == 'system' ? _themeManager.toggleTheme(false) : null;
-  SystemChrome.setPreferredOrientations([
+
+  try {
+    // 2. Initialize Firebase with a safety check
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint("Firebase Initialization Error: $e");
+    // We continue so the app doesn't stay on the splash screen forever
+  }
+
+  // 3. Handle Theme (Cleaned up logic)
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String savedTheme = prefs.getString('theme') ?? 'system';
+  
+  if (savedTheme == 'dark') {
+    _themeManager.toggleTheme(true);
+  } else if (savedTheme == 'light') {
+    _themeManager.toggleTheme(false);
+  } else {
+    // System or default handling
+    _themeManager.toggleTheme(false); 
+  }
+
+  // 4. Set Orientations
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  Stripe.publishableKey = stripePublishableKey;
- // main.dart
-OneSignal.Debug.setLogLevel(OSLogLevel.none); // Lower log level for production
-OneSignal.initialize(oneSignalAppId);
 
-// Add a small delay or check before requesting permission
-Future.delayed(Duration(seconds: 1), () {
-  OneSignal.Notifications.requestPermission(true);
-});
+  // 5. Initialize Stripe
+  Stripe.publishableKey = stripePublishableKey;
+
+  // 6. Initialize OneSignal (Slightly improved order)
+  OneSignal.Debug.setLogLevel(OSLogLevel.none);
+  OneSignal.initialize(oneSignalAppId);
+
+  // Use a delay for permission to ensure the UI is rendered first
+  Future.delayed(const Duration(seconds: 2), () {
+    OneSignal.Notifications.requestPermission(true);
+  });
+
+  // 7. Start App
   runApp(const ProviderScope(child: MyApp()));
 }
-
 ThemeManager _themeManager = ThemeManager();
 
 class MyApp extends StatefulWidget {
