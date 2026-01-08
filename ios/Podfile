@@ -1,4 +1,3 @@
-# Set the global platform to 15.0 for Firebase 2026 and iOS 26 SDK compatibility
 platform :ios, '15.0'
 
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -32,7 +31,6 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
-  # OneSignal linking for modern iOS versions
   pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0.0'
 
   target 'RunnerTests' do
@@ -41,7 +39,6 @@ target 'Runner' do
 end
 
 post_install do |installer|
-  # 1. Force the Pods project-level deployment target to 15.0
   installer.generated_projects.each do |project|
     project.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
@@ -52,15 +49,12 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
-      # 2. Ensure every individual pod uses iOS 15.0
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
-      
-      # 3. Force Swift 5 to prevent Swift 6 "extraneous whitespace" errors (SSLCommerz fix)
+      # Fix for SSLCommerz/Swift 6 spacing errors
       config.build_settings['SWIFT_VERSION'] = '5.0'
-      
-      # 4. Stability fixes for modern Xcode (16.0+)
       config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386 arm64'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
+      # Fix for Xcode 16+ PhaseScriptExecution failures
       config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
     end
   end
