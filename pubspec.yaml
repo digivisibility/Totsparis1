@@ -1,5 +1,5 @@
 name: tots_paris
-description: Kids brand.
+description: Kids brand app.
 publish_to: 'none'
 
 version: 1.0.0+6
@@ -42,16 +42,16 @@ dependencies:
   provider: ^6.1.2
   internet_connection_checker: ^3.0.1
 
-  # Push Notifications (Updated for iOS 17/18 Stability)
-  onesignal_flutter: ^5.3.5
+  # Push Notifications (Locked to high stability for Dart 3.5.4)
+  onesignal_flutter: ^5.2.0
   
-  # Firebase (Updated for late 2025/2026 compatibility)
-  firebase_core: ^4.3.0
-  firebase_auth: ^5.3.0
+  # Firebase (Pinned to versions compatible with Dart 3.5.4)
+  firebase_core: ^3.3.0
+  firebase_auth: ^5.1.0
   google_sign_in: ^6.2.1
 
-  # Payment Gateways
-  flutter_stripe: ^12.1.1
+  # Payment Gateways (Fixed for Flutter 3.24.4)
+  flutter_stripe: ^11.5.0
   flutter_paypal: ^0.2.1
   flutter_tap_payment: ^0.2.1
   flutter_sslcommerz: 2.4.4
@@ -74,7 +74,6 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
   assets:
     - images/
 
