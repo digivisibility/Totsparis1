@@ -2,22 +2,30 @@ workflows:
   ios-release:
     name: iOS App Store Release
     instance_type: mac_mini_m2
-    max_build_duration: 60
+    max_build_duration: 120 # Increased duration for complex pod installs
     
     integrations:
-      app_store_connect: Tots Paris1 # Double-check this name in Codemagic UI
+      app_store_connect: Tots Paris1 
 
     environment:
       groups:
-        - apple_auth       # Group containing your Apple API keys
-        - firebase_config  # Group containing IOS_FIREBASE_SECRET
+        - apple_auth       
+        - firebase_config  
       vars:
         BUNDLE_ID: "com.dv.totsparis"
-      flutter: 3.24.4     # Pinned for stability
-      xcode: 16.1         # Pinned for stability
+      flutter: 3.24.4     
+      xcode: 16.1         
       cocoapods: default
 
     scripts:
+      - name: Set iOS Deployment Target to 15.0
+        script: |
+          # Programmatically force the project and Podfile to iOS 15.0
+          # This resolves the 'firebase_core requires a higher minimum version' error
+          sed -i '' "s/^# platform :ios, '.*'/platform :ios, '15.0'/" ios/Podfile
+          sed -i '' "s/^platform :ios, '.*'/platform :ios, '15.0'/" ios/Podfile
+          find ios/Runner.xcodeproj/project.pbxproj -type f -exec sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' {} +
+
       - name: Set up keychain
         script: |
           keychain initialize
@@ -26,13 +34,11 @@ workflows:
         script: |
           #!/usr/bin/env sh
           set -e
-          # Ensure directory exists and recreate the plist from the secret
           mkdir -p $CM_BUILD_DIR/ios/Runner
           echo "$IOS_FIREBASE_SECRET" > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
 
       - name: Fetch signing files
         script: |
-          # Automatically manages certificates and profiles
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
 
       - name: Add certificates to keychain
@@ -47,12 +53,14 @@ workflows:
         script: |
           flutter packages pub get
           cd ios
+          # Clean old artifacts and install with repo update for latest Firebase/OneSignal
+          rm -rf Pods Podfile.lock
           pod install --repo-update
           cd ..
 
       - name: Build iOS IPA
         script: | 
-          # PROJECT_BUILD_NUMBER ensures you never upload the same version twice
+          # Use --release (not --debug) for App Store/TestFlight
           flutter build ipa --release \
             --bundle-name="Tots Paris" \
             --build-name=1.0.$PROJECT_BUILD_NUMBER \
