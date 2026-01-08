@@ -57,7 +57,11 @@ workflows:
         script: |
           flutter packages pub get
           cd ios
-          # Clean pods thoroughly to apply the 15.0 change
+          # FORCE the Podfile to iOS 15.0
+          # This replaces the platform line even if it is commented out
+          sed -i '' "s/^.*platform :ios.*/platform :ios, '15.0'/" Podfile
+          
+          # Clean and install
           rm -rf Pods Podfile.lock
           pod install --repo-update
           cd ..
