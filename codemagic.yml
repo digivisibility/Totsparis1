@@ -3,30 +3,62 @@ workflows:
     name: iOS App Store Release
     instance_type: mac_mini_m2 
     max_build_duration: 120
+    
+    integrations:
+      app_store_connect: Tots Paris # Must match your Codemagic Integration name
+
     environment:
       flutter: 3.24.4
       xcode: 16.1
       cocoapods: 1.16.2
       groups:
-        - app_store_credentials # Ensure your API keys are in this group
-    integrations:
-      app_store_connect: Tots Paris
+        - apple_auth        # Group with APP_STORE_CONNECT_KEY_IDENTIFIER, etc.
+        - firebase_config   # Group with IOS_FIREBASE_SECRET
+      vars:
+        BUNDLE_ID: "com.dv.totsparis"
+
     scripts:
+      - name: Set iOS Deployment Target to 15.0
+        script: |
+          # Force the project and Podfile to iOS 15.0 to satisfy Firebase/OneSignal requirements
+          sed -i '' "s/^# platform :ios, '.*'/platform :ios, '15.0'/" ios/Podfile
+          sed -i '' "s/^platform :ios, '.*'/platform :ios, '15.0'/" ios/Podfile
+          find ios/Runner.xcodeproj/project.pbxproj -type f -exec sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' {} +
+
+      - name: Set up keychain and signing
+        script: |
+          keychain initialize
+          # Fetches certificates and profiles from Apple Developer Portal
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          keychain add-certificates
+          # Applies the fetched profiles to the Xcode project
+          xcode-project use-profiles
+
+      - name: Load Firebase configuration
+        script: |
+          mkdir -p ios/Runner
+          echo "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
+
       - name: Install dependencies
         script: | 
           flutter pub get
-          # Clean and install Pods to prevent old cache crashes
           cd ios
           rm -rf Pods Podfile.lock
           pod install --repo-update
           cd ..
+
       - name: Build iOS IPA
         script: | 
-          # Use build-name and build-number from pubspec automatically
+          # PROJECT_BUILD_NUMBER avoids "Duplicate Version" errors in App Store
           flutter build ipa --release \
+            --build-name=1.0.$PROJECT_BUILD_NUMBER \
+            --build-number=$PROJECT_BUILD_NUMBER \
             --export-options-plist=$HOME/export_options.plist
+            
     artifacts:
       - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
     publishing:
       app_store_connect:
         auth: integration
