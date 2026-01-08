@@ -46,8 +46,14 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
   Stripe.publishableKey = stripePublishableKey;
-  OneSignal.initialize(oneSignalAppId);
+ // main.dart
+OneSignal.Debug.setLogLevel(OSLogLevel.none); // Lower log level for production
+OneSignal.initialize(oneSignalAppId);
+
+// Add a small delay or check before requesting permission
+Future.delayed(Duration(seconds: 1), () {
   OneSignal.Notifications.requestPermission(true);
+});
   runApp(const ProviderScope(child: MyApp()));
 }
 
