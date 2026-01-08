@@ -22,7 +22,7 @@ dependencies:
   nb_utils: ^7.0.5
   font_awesome_flutter: ^10.7.0
   iconly: ^1.0.1
-  syncfusion_flutter_sliders: ^31.2.15
+  syncfusion_flutter_sliders: ^31.2.15 # Ensure this matches your Syncfusion license
   carousel_slider: ^5.0.0
   readmore: ^3.0.0
   flutter_slidable: ^4.0.3
@@ -42,16 +42,17 @@ dependencies:
   provider: ^6.1.2
   internet_connection_checker: ^3.0.1
 
-  # Push Notifications (Updated for iOS 17/18 Stability)
+  # Push Notifications
   onesignal_flutter: ^5.3.5
   
-  # Firebase (Updated for late 2025/2026 compatibility)
+  # Firebase (Synchronized versions to fix the error)
   firebase_core: ^4.3.0
-  firebase_auth: ^5.3.0
+  firebase_auth: ^6.1.3   # Changed from 5.3.0 to match core 4.3.0
   google_sign_in: ^6.2.1
 
   # Payment Gateways
-  flutter_stripe: ^12.1.1
+  # Pinned to 11.5.0 because 12.x requires Dart 3.8+ (You are on 3.5.3)
+  flutter_stripe: ^11.5.0 
   flutter_paypal: ^0.2.1
   flutter_tap_payment: ^0.2.1
   flutter_sslcommerz: ^3.0.1
@@ -70,7 +71,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: ^5.0.0 # Changed from 6.0.0 to match Dart 3.5.3
 
 flutter:
   uses-material-design: true
