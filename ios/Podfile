@@ -1,7 +1,7 @@
-# Uncomment this line to define a global platform for your project
+# Set the global platform to 13.0 for better compatibility with OneSignal 5.x and Stripe
 platform :ios, '13.0'
 
-# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+# CocoaPods analytics sends network stats synchronously affecting build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 project 'Runner', {
@@ -31,7 +31,12 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
+  # 1. Standard Flutter pods
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  
+  # 2. Explicit OneSignal linking for main target (Required for iOS 16/17/18 crashes)
+  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0.0'
+
   target 'RunnerTests' do
     inherit! :search_paths
   end
@@ -41,9 +46,18 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     
-    # Ensure deployment target is consistent across all pods
     target.build_configurations.each do |config|
+      # 3. Ensure every pod uses iOS 13.0 minimum
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      
+      # 4. Fix for Apple Silicon/Newer iPhone architectures
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386 arm64'
+      
+      # 5. Disable Bitcode (Required for OneSignal/Stripe on newer iOS)
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+      
+      # 6. Fix for iOS 17/18 "User Script Sandboxing" build error
+      config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
     end
   end
 end
