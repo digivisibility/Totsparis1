@@ -1,15 +1,33 @@
 workflows:
   ios-release:
     name: iOS App Store Release
-    instance_type: mac_mini_m2 # This is your "Cloud Mac"
+    instance_type: mac_mini_m2 
+    max_build_duration: 120
+    environment:
+      flutter: 3.24.4
+      xcode: 16.1
+      cocoapods: 1.16.2
+      groups:
+        - app_store_credentials # Ensure your API keys are in this group
     integrations:
       app_store_connect: Tots Paris
     scripts:
+      - name: Install dependencies
+        script: | 
+          flutter pub get
+          # Clean and install Pods to prevent old cache crashes
+          cd ios
+          rm -rf Pods Podfile.lock
+          pod install --repo-update
+          cd ..
       - name: Build iOS IPA
         script: | 
-          # For Flutter apps
-          flutter build ipa --release --export-options-plist=$HOME/export_options.plist
+          # Use build-name and build-number from pubspec automatically
+          flutter build ipa --release \
+            --export-options-plist=$HOME/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true # Starts by sending it to TestFlight
+        submit_to_testflight: true
