@@ -2,10 +2,10 @@ workflows:
   ios-release:
     name: iOS App Store Release
     instance_type: mac_mini_m2
-    max_build_duration: 120 # Increased duration for complex pod installs
+    max_build_duration: 120
     
     integrations:
-      app_store_connect: Tots Paris1 
+      app_store_connect: Tots Paris1
 
     environment:
       groups:
@@ -18,13 +18,19 @@ workflows:
       cocoapods: default
 
     scripts:
-      - name: Set iOS Deployment Target to 15.0
+      - name: Force iOS 15.0 Deployment Target
         script: |
-          # Programmatically force the project and Podfile to iOS 15.0
-          # This resolves the 'firebase_core requires a higher minimum version' error
+          # 1. Update the Podfile platform
           sed -i '' "s/^# platform :ios, '.*'/platform :ios, '15.0'/" ios/Podfile
           sed -i '' "s/^platform :ios, '.*'/platform :ios, '15.0'/" ios/Podfile
+          
+          # 2. Update all occurrences in the Xcode Project file
           find ios/Runner.xcodeproj/project.pbxproj -type f -exec sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' {} +
+          
+          # 3. Force the minimum version in Info.plist
+          if [ -f ios/Runner/Info.plist ]; then
+            sed -i '' '/MinimumOSVersion/{n;s/<string>.*<\/string>/<string>15.0<\/string>/;}' ios/Runner/Info.plist
+          fi
 
       - name: Set up keychain
         script: |
@@ -32,8 +38,6 @@ workflows:
 
       - name: Load Firebase configuration
         script: |
-          #!/usr/bin/env sh
-          set -e
           mkdir -p $CM_BUILD_DIR/ios/Runner
           echo "$IOS_FIREBASE_SECRET" > $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist
 
@@ -53,16 +57,15 @@ workflows:
         script: |
           flutter packages pub get
           cd ios
-          # Clean old artifacts and install with repo update for latest Firebase/OneSignal
+          # Clean pods thoroughly to apply the 15.0 change
           rm -rf Pods Podfile.lock
           pod install --repo-update
           cd ..
 
       - name: Build iOS IPA
         script: | 
-          # Use --release (not --debug) for App Store/TestFlight
+          # MUST be --release for App Store Connect
           flutter build ipa --release \
-            --bundle-name="Tots Paris" \
             --build-name=1.0.$PROJECT_BUILD_NUMBER \
             --build-number=$PROJECT_BUILD_NUMBER \
             --export-options-plist=$HOME/export_options.plist
