@@ -4,6 +4,10 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
+  vars:
+    FIREBASE_APP_ID: "1:1091304297452:ios:7e5f2b7c24490690ae66c9"
+
+    environment:
       groups:
         # 1. Create a group in Codemagic UI called "app_store_credentials"
         # 2. Add: APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER, 
