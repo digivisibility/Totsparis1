@@ -1,61 +1,52 @@
 workflows:
-  ios-release:
-    name: iOS Release Workflow
+  ios-adhoc:
+    name: iOS AdHoc IPA (Real Device Testing)
     max_build_duration: 60
     instance_type: mac_mini_m2
 
     environment:
-      groups:
-        # 1. Create a group in Codemagic UI called "app_store_credentials"
-        # 2. Add: APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_KEY_IDENTIFIER, 
-        #    APP_STORE_CONNECT_PRIVATE_KEY (the .p8 content), and APP_ID
-        - app_store_credentials 
       flutter: stable
-      xcode: latest # This ensures you are on the latest stable (e.g., 16.x or 26.x in your logs)
+      xcode: latest
       cocoapods: default
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: 'main'
-          include: true
+
     scripts:
-      - name: Set up keychain to be used for codesigning
+      - name: Initialize keychain
         script: |
           keychain initialize
-      - name: Fetch signing files
+
+      # 🔥 CREATE FIREBASE PLIST (CRITICAL)
+      - name: Create GoogleService-Info.plist
         script: |
-          # Detects bundle ID from your project and fetches/creates profiles
+          echo "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
+
+      # 🔥 FETCH AD-HOC SIGNING (NOT APP STORE)
+      - name: Fetch AdHoc signing files
+        script: |
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
             --platform IOS \
-            --type IOS_APP_STORE \
+            --type IOS_ADHOC \
             --create
-      - name: Add certificates to keychain
+
+      - name: Add certificates
         script: |
           keychain add-certificates
-      - name: Set up code signing settings on Xcode project
+
+      - name: Apply provisioning profiles
         script: |
           xcode-project use-profiles
-      - name: Install Flutter dependencies and fix Pods
+
+      - name: Install dependencies
         script: |
           flutter clean
           flutter pub get
           cd ios
-          # Force a fresh pod install to pick up Podfile fixes for SSLCommerz
-          rm -rf Pods
-          rm -f Podfile.lock
           pod install --repo-update
           cd ..
-      - name: Build iOS IPA (Release Mode)
+
+      # ✅ BUILD AD-HOC IPA
+      - name: Build IPA (Release / AdHoc)
         script: |
-          # IMPORTANT: We use --release to avoid the App Store 'debug' error
-          flutter build ipa --release \
-            --build-number=$BUILD_NUMBER \
-            --export-options-plist=$HOME/export_options.plist
+          flutter build ipa --release
+
     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        auth: integration
-        # This will automatically upload the IPA to TestFlight
-        submit_to_testflight: true
