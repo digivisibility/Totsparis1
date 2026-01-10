@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: _flutterfire_internals
-      sha256: ff0a84a2734d9e1089f8aedd5c0af0061b82fb94e95260d943404e0ef2134b11
+      sha256: e4a1b612fd2955908e26116075b3a4baf10c353418ca645b4deae231c82bf144
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.59"
+    version: "1.3.65"
   args:
     dependency: transitive
     description:
@@ -237,34 +237,34 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_auth
-      sha256: "0fed2133bee1369ee1118c1fef27b2ce0d84c54b7819a2b17dada5cfec3b03ff"
+      sha256: "060a9bfc9877538dfdc69f2fdc1e0bf068439a7e9f22da6513f7b9bde308bb93"
       url: "https://pub.dev"
     source: hosted
-    version: "5.7.0"
+    version: "6.1.3"
   firebase_auth_platform_interface:
     dependency: transitive
     description:
       name: firebase_auth_platform_interface
-      sha256: "871c9df4ec9a754d1a793f7eb42fa3b94249d464cfb19152ba93e14a5966b386"
+      sha256: e91c9aadf9944e8319855fa752fd6c664bade2bbd6e7697a5142113c319a4288
       url: "https://pub.dev"
     source: hosted
-    version: "7.7.3"
+    version: "8.1.5"
   firebase_auth_web:
     dependency: transitive
     description:
       name: firebase_auth_web
-      sha256: d9ada769c43261fd1b18decf113186e915c921a811bd5014f5ea08f4cf4bc57e
+      sha256: "155145fd84f311e50eb2bfeb892f74b0d1b30936f40765a051b70110270cb6d1"
       url: "https://pub.dev"
     source: hosted
-    version: "5.15.3"
+    version: "6.1.1"
   firebase_core:
     dependency: "direct main"
     description:
       name: firebase_core
-      sha256: "7be63a3f841fc9663342f7f3a011a42aef6a61066943c90b1c434d79d5c995c5"
+      sha256: "29cfa93c771d8105484acac340b5ea0835be371672c91405a300303986f4eba9"
       url: "https://pub.dev"
     source: hosted
-    version: "3.15.2"
+    version: "4.3.0"
   firebase_core_platform_interface:
     dependency: transitive
     description:
@@ -277,10 +277,26 @@ packages:
     dependency: transitive
     description:
       name: firebase_core_web
-      sha256: "0ed0dc292e8f9ac50992e2394e9d336a0275b6ae400d64163fdf0a8a8b556c37"
+      sha256: a631bbfbfa26963d68046aed949df80b228964020e9155b086eff94f462bbf1f
       url: "https://pub.dev"
     source: hosted
-    version: "2.24.1"
+    version: "3.3.1"
+  firebase_crashlytics:
+    dependency: "direct main"
+    description:
+      name: firebase_crashlytics
+      sha256: "8d52022ee6fdd224e92c042f297d1fd0ec277195c49f39fa61b8cc500a639f00"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.6"
+  firebase_crashlytics_platform_interface:
+    dependency: transitive
+    description:
+      name: firebase_crashlytics_platform_interface
+      sha256: "97c6a97b35e3d3dafe38fb053a65086a1efb125022d292161405848527cc25a4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.8.16"
   fixnum:
     dependency: transitive
     description:
@@ -338,10 +354,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: "3105dc8492f6183fb076ccf1f351ac3d60564bff92e20bfc4af9cc1651f4e7e1"
+      sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "5.0.0"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
@@ -431,10 +447,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_stripe
-      sha256: a5cbf9416ed20aa27633d106082f6711f3b1cc13f33aa72870531fb522db3fbe
+      sha256: a474b283f4b07e8973687514bf48762e618073b0d6b7acc45cea9a60466d4f8c
       url: "https://pub.dev"
     source: hosted
-    version: "12.1.1"
+    version: "11.5.0"
   flutter_svg:
     dependency: transitive
     description:
@@ -481,10 +497,10 @@ packages:
     dependency: transitive
     description:
       name: freezed_annotation
-      sha256: "7294967ff0a6d98638e7acb774aac3af2550777accd8149c90af5b014e6d44d8"
+      sha256: c2e2d632dd9b8a2b7751117abcfc2b4888ecfe181bd9fca7170d9ef02e595fe2
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "2.4.4"
   google_fonts:
     dependency: "direct main"
     description:
@@ -689,10 +705,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: a5e2b223cb7c9c8efdc663ef484fdd95bb243bff242ef5b13e26883547fce9a0
+      sha256: c35bb79562d980e9a453fc715854e1ed39e24e7d0297a880ef54e17f9874a9d7
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "5.1.1"
   logger:
     dependency: transitive
     description:
@@ -761,10 +777,10 @@ packages:
     dependency: "direct main"
     description:
       name: onesignal_flutter
-      sha256: b5bb43bf496ddb5e3975ba54c6477cc2d1fcd18fb3698f195d2e0bfd376ddafd
+      sha256: "97aa641092f73c56498f04081f5eaa591018c6c46b5cb500939270d0282bc7bf"
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.4"
+    version: "5.3.5"
   path:
     dependency: transitive
     description:
@@ -1030,26 +1046,26 @@ packages:
     dependency: transitive
     description:
       name: stripe_android
-      sha256: f9127544327fe5bf23772a9899a46c4af1c2eccd128eb548c09b4ce9d3c99d7b
+      sha256: a666352e0c20753ecd8feebb5944882bf597167be4f020641266515a495bd55f
       url: "https://pub.dev"
     source: hosted
-    version: "12.1.0"
+    version: "11.5.0"
   stripe_ios:
     dependency: transitive
     description:
       name: stripe_ios
-      sha256: "82cd4c056730ce943a4f99d82433a358f8e09d871e6c71cb54bc053aa8f49a1d"
+      sha256: "0f7afed3ac61e544e7525da9b692b23d93e762d56f6c9aa7f77fc6d9a686a65d"
       url: "https://pub.dev"
     source: hosted
-    version: "12.1.0"
+    version: "11.5.0"
   stripe_platform_interface:
     dependency: transitive
     description:
       name: stripe_platform_interface
-      sha256: "1766fa3a52a4c2fee7fa293b14655e07517d743be3f045aa3a28f8cb49629e70"
+      sha256: "23c10f3875da07f85a6196fcb676e64c767ad2d04ec73ba4e941ac797a4ee4d3"
       url: "https://pub.dev"
     source: hosted
-    version: "12.1.1"
+    version: "11.5.0"
   syncfusion_flutter_core:
     dependency: transitive
     description:
