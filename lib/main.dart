@@ -19,48 +19,53 @@ import 'const/constants.dart';
 import 'generated/l10n.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // 1. Initialize Firebase
   try {
-    await Firebase.initializeApp();
-    
-    // Pass all uncaught errors to Crashlytics
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-    };
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
-  } catch (e) {
-    debugPrint("Firebase Initialization Error: $e");
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // 1. Initialize Firebase (Wrapped to prevent iOS startup crash)
+    try {
+      await Firebase.initializeApp();
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    } catch (e) {
+      debugPrint("Firebase Error: $e");
+      // App continues even if Firebase fails (to prevent crash on tap)
+    }
+
+    // 2. Stripe Configuration
+    Stripe.publishableKey = stripePublishableKey;
+    // applySettings() is essential for iOS
+    try {
+      await Stripe.instance.applySettings();
+    } catch (e) {
+      debugPrint("Stripe Error: $e");
+    }
+
+    // 3. OneSignal Configuration
+    OneSignal.Debug.setLogLevel(OSLogLevel.none);
+    OneSignal.initialize(oneSignalAppId);
+    OneSignal.Notifications.requestPermission(true);
+
+    // 4. Load Theme
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String savedTheme = prefs.getString('theme') ?? 'light';
+    _themeManager.toggleTheme(savedTheme == 'dark');
+
+    // 5. Lock Orientation
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+
+    runApp(const ProviderScope(child: MyApp()));
+  } catch (e, stack) {
+    debugPrint("Critical Startup Error: $e");
+    debugPrint(stack.toString());
+    // Fallback app to show error if everything fails
+    runApp(MaterialApp(home: Scaffold(body: Center(child: Text("Fatal Error: $e")))));
   }
-
-  // 2. Stripe Configuration
-  Stripe.publishableKey = stripePublishableKey;
-  await Stripe.instance.applySettings();
-
-  // 3. OneSignal Configuration
-  OneSignal.Debug.setLogLevel(OSLogLevel.none);
-  OneSignal.initialize(oneSignalAppId);
-  OneSignal.Notifications.requestPermission(true);
-
-  // 4. Load Theme
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String savedTheme = prefs.getString('theme') ?? 'light';
-  if (savedTheme == 'dark') {
-    _themeManager.toggleTheme(true);
-  } else {
-    _themeManager.toggleTheme(false);
-  }
-
-  // 5. Lock Orientation
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
-
-  runApp(const ProviderScope(child: MyApp()));
 }
 
 ThemeManager _themeManager = ThemeManager();
