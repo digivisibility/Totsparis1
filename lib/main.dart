@@ -29,63 +29,75 @@ import 'generated/l10n.dart';
 import 'models/add_to_cart_model.dart';
 import 'Providers/wishlist_provider.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart'; // Required for kDebugMode
+import 'package:flutter/material.dart';
+
 Future<void> main() async {
-  // 1️⃣ Ensure Flutter is initialized
+  // 1. Ensure Flutter is ready
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 2️⃣ Catch Flutter framework errors
-  FlutterError.onError =
-      FirebaseCrashlytics.instance.recordFlutterFatalError;
+  try {
+    // 2. Initialize Firebase
+    await Firebase.initializeApp();
 
-  // 3️⃣ Catch async & platform crashes
-  await runZonedGuarded<Future<void>>(() async {
-    // 🔥 Initialize Firebase FIRST
-    try {
-      await Firebase.initializeApp();
-    } catch (e, s) {
-      debugPrint("Firebase initialization failed: $e");
-      FirebaseCrashlytics.instance.recordError(e, s);
+    // --- ADD THESE LINES START ---
+    
+    // Pass all uncaught "fatal" errors from the framework to Crashlytics
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+
+    // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+    
+    // Optional: Enable Crashlytics in debug mode if you want to test it locally
+    if (kDebugMode) {
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
     }
 
-    // 4️⃣ Load saved theme
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String savedTheme = prefs.getString('theme') ?? 'system';
+    // --- ADD THESE LINES END ---
 
-    if (savedTheme == 'dark') {
-      _themeManager.toggleTheme(true);
-    } else if (savedTheme == 'light') {
-      _themeManager.toggleTheme(false);
-    } else {
-      _themeManager.toggleTheme(false);
-    }
+  } catch (e) {
+    debugPrint("Firebase Initialization Error: $e");
+  }
+  // 3. Handle Theme (Cleaned up logic)
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String savedTheme = prefs.getString('theme') ?? 'system';
+  
+  if (savedTheme == 'dark') {
+    _themeManager.toggleTheme(true);
+  } else if (savedTheme == 'light') {
+    _themeManager.toggleTheme(false);
+  } else {
+    // System or default handling
+    _themeManager.toggleTheme(false); 
+  }
 
-    // 5️⃣ Lock orientation
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+  // 4. Set Orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
-    // 6️⃣ Stripe initialization
-    Stripe.publishableKey = stripePublishableKey;
+  // 5. Initialize Stripe
+  Stripe.publishableKey = stripePublishableKey;
 
-    // 7️⃣ OneSignal initialization
-    OneSignal.Debug.setLogLevel(OSLogLevel.none);
-    OneSignal.initialize(oneSignalAppId);
+  // 6. Initialize OneSignal (Slightly improved order)
+  OneSignal.Debug.setLogLevel(OSLogLevel.none);
+  OneSignal.initialize(oneSignalAppId);
 
-    Future.delayed(const Duration(seconds: 2), () {
-      OneSignal.Notifications.requestPermission(true);
-    });
-
-    // 8️⃣ Run the app
-    runApp(const ProviderScope(child: MyApp()));
-  }, (error, stack) {
-    // 🚨 Capture ANY uncaught error (iOS native, async, plugin crash)
-    FirebaseCrashlytics.instance.recordError(
-      error,
-      stack,
-      fatal: true,
-    );
+  // Use a delay for permission to ensure the UI is rendered first
+  Future.delayed(const Duration(seconds: 2), () {
+    OneSignal.Notifications.requestPermission(true);
   });
+
+  // 7. Start App
+  runApp(const ProviderScope(child: MyApp()));
 }
 ThemeManager _themeManager = ThemeManager();
 
