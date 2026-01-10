@@ -30,50 +30,62 @@ import 'models/add_to_cart_model.dart';
 import 'Providers/wishlist_provider.dart';
 
 Future<void> main() async {
-  // 1. Ensure Flutter is ready
+  // 1️⃣ Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    // 2. Initialize Firebase with a safety check
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint("Firebase Initialization Error: $e");
-    // We continue so the app doesn't stay on the splash screen forever
-  }
+  // 2️⃣ Catch Flutter framework errors
+  FlutterError.onError =
+      FirebaseCrashlytics.instance.recordFlutterFatalError;
 
-  // 3. Handle Theme (Cleaned up logic)
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String savedTheme = prefs.getString('theme') ?? 'system';
-  
-  if (savedTheme == 'dark') {
-    _themeManager.toggleTheme(true);
-  } else if (savedTheme == 'light') {
-    _themeManager.toggleTheme(false);
-  } else {
-    // System or default handling
-    _themeManager.toggleTheme(false); 
-  }
+  // 3️⃣ Catch async & platform crashes
+  await runZonedGuarded<Future<void>>(() async {
+    // 🔥 Initialize Firebase FIRST
+    try {
+      await Firebase.initializeApp();
+    } catch (e, s) {
+      debugPrint("Firebase initialization failed: $e");
+      FirebaseCrashlytics.instance.recordError(e, s);
+    }
 
-  // 4. Set Orientations
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    // 4️⃣ Load saved theme
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String savedTheme = prefs.getString('theme') ?? 'system';
 
-  // 5. Initialize Stripe
-  Stripe.publishableKey = stripePublishableKey;
+    if (savedTheme == 'dark') {
+      _themeManager.toggleTheme(true);
+    } else if (savedTheme == 'light') {
+      _themeManager.toggleTheme(false);
+    } else {
+      _themeManager.toggleTheme(false);
+    }
 
-  // 6. Initialize OneSignal (Slightly improved order)
-  OneSignal.Debug.setLogLevel(OSLogLevel.none);
-  OneSignal.initialize(oneSignalAppId);
+    // 5️⃣ Lock orientation
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
-  // Use a delay for permission to ensure the UI is rendered first
-  Future.delayed(const Duration(seconds: 2), () {
-    OneSignal.Notifications.requestPermission(true);
+    // 6️⃣ Stripe initialization
+    Stripe.publishableKey = stripePublishableKey;
+
+    // 7️⃣ OneSignal initialization
+    OneSignal.Debug.setLogLevel(OSLogLevel.none);
+    OneSignal.initialize(oneSignalAppId);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      OneSignal.Notifications.requestPermission(true);
+    });
+
+    // 8️⃣ Run the app
+    runApp(const ProviderScope(child: MyApp()));
+  }, (error, stack) {
+    // 🚨 Capture ANY uncaught error (iOS native, async, plugin crash)
+    FirebaseCrashlytics.instance.recordError(
+      error,
+      stack,
+      fatal: true,
+    );
   });
-
-  // 7. Start App
-  runApp(const ProviderScope(child: MyApp()));
 }
 ThemeManager _themeManager = ThemeManager();
 
