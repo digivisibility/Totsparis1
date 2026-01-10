@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:iconly/iconly.dart';
 import 'package:maanstore/generated/l10n.dart' as lang;
 import 'package:maanstore/screens/order_screen/my_order.dart';
+import 'package:maanstore/screens/profile_screen/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../const/constants.dart';

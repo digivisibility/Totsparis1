@@ -27,6 +27,25 @@ import '../../const/hardcoded_text.dart';
 import '../../models/category_model.dart';
 import '../../widgets/product_greed_view_widget.dart';
 
+// Simple SwitchButton implementation since it was missing
+class SwitchButton extends StatelessWidget {
+  const SwitchButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return IconButton(
+      icon: Icon(
+        isDark ? Icons.wb_sunny_outlined : Icons.nightlight_round_outlined,
+        color: isDark ? Colors.white : Colors.black,
+      ),
+      onPressed: () {
+        // Toggle theme logic here if needed, or leave as placeholder
+      },
+    );
+  }
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -39,19 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String? name;
   String? url;
 
-  // Future<void> initMessaging() async {
-  //   await OneSignal.shared.setAppId(oneSignalAppId);
-  //   OneSignal.shared.setInAppMessageClickedHandler((action) {
-  //     if (action.clickName == 'successPage') {
-  //       toast(lang.S.of(context).easyLoadingSuccess);
-  //     }
-  //   });
-  // }
-
   @override
   void initState() {
     apiService = APIService();
-    // initMessaging();
     super.initState();
   }
 
@@ -134,44 +143,11 @@ class _HomeScreenState extends State<HomeScreen> {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                /// Build Horizontal List widget without giving specific height to it.
-                // Padding(
-                //   padding: const EdgeInsets.all(15.0),
-                //   child: allBanner.when(data: (snapShot) {
-                //     return ImageSlideshow(
-                //         width: double.infinity,
-                //         indicatorBackgroundColor: primaryColor.withOpacity(0.5),
-                //         indicatorRadius: 4,
-                //         isLoop: true,
-                //         autoPlayInterval: 3000,
-                //         indicatorColor: primaryColor,
-                //         children: List.generate(snapShot.length, (index) {
-                //           return Container(
-                //             height: 252,
-                //             width: double.infinity,
-                //             decoration: BoxDecoration(
-                //               borderRadius: BorderRadius.circular(10),
-                //               image: DecorationImage(
-                //                 fit: BoxFit.cover,
-                //                 image: NetworkImage(
-                //                   snapShot[index].guid!.rendered.toString(),
-                //                 ),
-                //               ),
-                //             ),
-                //           );
-                //         }));
-                //   }, error: (e, stack) {
-                //     return Text(e.toString());
-                //   }, loading: () {
-                //     return const BannerShimmerWidget();
-                //   }),
-                // ),
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: allBanner.when(
                     data: (snapShot) {
                       if (snapShot.isEmpty) {
-                        // Prevent integer division by zero
                         return Container(
                           height: 200,
                           width: double.infinity,
@@ -250,17 +226,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                       fontColor: isDark ? darkTitleColor : lightTitleColor,
                                       fontWeight: FontWeight.bold,
                                     ),
-                                    // TextButton(
-                                    //   onPressed: () {
-                                    //     const CategoryScreen().launch(context);
-                                    //   },
-                                    //   child: MyGoogleText(
-                                    //     text: lang.S.of(context).showAll,
-                                    //     fontSize: 13,
-                                    //     fontColor: textColors,
-                                    //     fontWeight: FontWeight.normal,
-                                    //   ),
-                                    // )
                                   ],
                                 ),
                                 const SizedBox(
@@ -289,71 +254,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         height: 15,
                                       ),
                                       _buildCategoryList2(snapShot),
-                                      // StaggeredGrid.count(
-                                      //   crossAxisCount: 2,
-                                      //   mainAxisSpacing: 9,
-                                      //   crossAxisSpacing: 9,
-                                      //   children: [
-                                      //     Container(
-                                      //       height: 137,
-                                      //       width: 179,
-                                      //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                      //       decoration: BoxDecoration(image: DecorationImage(fit: BoxFit.cover, image: NetworkImage(snapShot[0].image?.src ?? ''))),
-                                      //       child: Text(
-                                      //         snapShot[0].name ?? '',
-                                      //       ),
-                                      //     ).onTap(() {
-                                      //       SingleCategoryScreen(
-                                      //         categoryId: snapShot[0].id!.toInt(),
-                                      //         categoryName: snapShot[0].name.toString(),
-                                      //         categoryList: snapShot,
-                                      //         categoryModel: snapShot[0],
-                                      //       ).launch(context);
-                                      //     }),
-                                      //     Container(
-                                      //       height: 192,
-                                      //       width: 179,
-                                      //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                      //       decoration: BoxDecoration(image: DecorationImage(fit: BoxFit.cover, image: NetworkImage(snapShot[1].image?.src ?? ''))),
-                                      //       child: Text(snapShot[1].name ?? ''),
-                                      //     ).onTap(() {
-                                      //       SingleCategoryScreen(
-                                      //         categoryId: snapShot[1].id!.toInt(),
-                                      //         categoryName: snapShot[1].name.toString(),
-                                      //         categoryList: snapShot,
-                                      //         categoryModel: snapShot[1],
-                                      //       ).launch(context);
-                                      //     }),
-                                      //     Container(
-                                      //       height: 137,
-                                      //       width: 179,
-                                      //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                      //       decoration: BoxDecoration(image: DecorationImage(fit: BoxFit.cover, image: NetworkImage(snapShot[2].image?.src ?? ''))),
-                                      //       child: Text(snapShot[2].name ?? ''),
-                                      //     ).onTap(() {
-                                      //       SingleCategoryScreen(
-                                      //         categoryId: snapShot[2].id!.toInt(),
-                                      //         categoryName: snapShot[2].name.toString(),
-                                      //         categoryList: snapShot,
-                                      //         categoryModel: snapShot[2],
-                                      //       ).launch(context);
-                                      //     }),
-                                      //     Container(
-                                      //       height: 82,
-                                      //       width: 179,
-                                      //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                      //       decoration: BoxDecoration(image: DecorationImage(fit: BoxFit.cover, image: NetworkImage(snapShot[3].image?.src ?? ''))),
-                                      //       child: Text(snapShot[3].name ?? ''),
-                                      //     ).onTap(() {
-                                      //       SingleCategoryScreen(
-                                      //         categoryId: snapShot[3].id!.toInt(),
-                                      //         categoryName: snapShot[3].name.toString(),
-                                      //         categoryList: snapShot,
-                                      //         categoryModel: snapShot[3],
-                                      //       ).launch(context);
-                                      //     }),
-                                      //   ],
-                                      // ),
                                     ],
                                   );
                                 }, error: (e, stack) {
@@ -1054,25 +954,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategoryList(List<CategoryModel> categories) {
-    print("------------- Entered _buildCategoryList -----------------");
     bool isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Lists for filtering categories
     final List<CategoryModel> finalList = [];
     final List<CategoryModel> allSubCategoryList = [];
 
-    // Filtering categories where parent is not zero
     for (var element in categories) {
-      print('------------- Looping through categories -------------');
       if (element.parent != 0) {
         if (finalList.length < 8) {
           finalList.add(element);
         }
-        allSubCategoryList.add(element); // Add to subcategories regardless
+        allSubCategoryList.add(element);
       }
     }
 
-    // If there are no valid categories, return an empty container or handle as needed
     if (finalList.isEmpty) {
       return const Center(child: Text("No sub-categories available"));
     }
@@ -1089,7 +984,6 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: finalList.length,
       itemBuilder: (context, index) {
         String? image = finalList[index].image?.src.toString();
-        print('-----------------Category Image URL: ${image}-------');
 
         return InkWell(
           onTap: () {
@@ -1181,90 +1075,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget _buildCategoryList(List<CategoryModel> categories) {
-  //   bool isDark = Theme.of(context).brightness == Brightness.dark;
-  //   final List<CategoryModel> finalList = [];
-  //   final List<CategoryModel> allSubCategoryList = [];
-  //   for (var element in categories) {
-  //     if (element.parent != 0) {
-  //     finalList.length <8 ? {finalList.add(element),allSubCategoryList.add(element)} : allSubCategoryList.add(element);
-  //     }
-  //   }
-  //   return GridView.builder(
-  //     physics: const NeverScrollableScrollPhysics(),
-  //     shrinkWrap: true,
-  //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, mainAxisSpacing: 5, childAspectRatio: 0.72, crossAxisSpacing: 8),
-  //     itemCount: finalList.length,
-  //     itemBuilder: (context, index) {
-  //       print('-----------------category----------${finalList[index].image?.src.toString()}-------');
-  //       String? image = finalList[index].image?.src.toString();
-  //       return InkWell(
-  //         onTap: () {
-  //           index >= 7
-  //               ? Navigator.push(context, MaterialPageRoute(builder: (context) =>  CategoryScreen(allSubCategoryList: allSubCategoryList,)))
-  //               : SingleCategoryScreen(
-  //                   categoryId: finalList[index].id!.toInt(),
-  //                   categoryName: finalList[index].name.toString(),
-  //                   categoryList: categories,
-  //                   categoryModel: finalList[index],
-  //                 ).launch(context);
-  //         },
-  //         child: index >= 7
-  //             ? Column(
-  //                 children: [
-  //                   Stack(
-  //                     alignment: Alignment.center,
-  //                     children: [
-  //                       SizedBox(
-  //                         height: 75,
-  //                         child: Stack(
-  //                           fit: StackFit.expand,
-  //                           children: [
-  //                             Image.network(image??''),
-  //                             ClipRRect(
-  //                               child: BackdropFilter(
-  //                                 filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
-  //                                 child: Container(
-  //                                   color: Colors.grey.withOpacity(0.1),
-  //                                   alignment: Alignment.center,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                       const Icon(
-  //                         CommunityMaterialIcons.dots_horizontal_circle_outline,
-  //                         color: Colors.white,
-  //                         size: 50,
-  //                       )
-  //                     ],
-  //                   ),
-  //                   const SizedBox(height: 4),
-  //                   Text(
-  //                     'View More',
-  //                     maxLines: 1,
-  //                     overflow: TextOverflow.ellipsis,
-  //                     style: kTextStyle.copyWith(fontSize: 12, color: isDark ? darkTitleColor : lightTitleColor),
-  //                   )
-  //                 ],
-  //               )
-  //             : Column(
-  //                 children: [
-  //                   Container(height: 75, width: 75, decoration: BoxDecoration(image: DecorationImage(fit: BoxFit.cover, image: NetworkImage(image ?? '')))),
-  //                   const SizedBox(height: 4),
-  //                   Text(
-  //                     finalList[index].name.toString(),
-  //                     maxLines: 1,
-  //                     overflow: TextOverflow.ellipsis,
-  //                     style: kTextStyle.copyWith(fontSize: 12, color: isDark ? darkTitleColor : lightTitleColor),
-  //                   )
-  //                 ],
-  //               ),
-  //       );
-  //     },
-  //   );
-  // }
   Widget _buildCategoryList2(List<CategoryModel> categories) {
     final List<CategoryModel> finalList = [];
 
@@ -1275,7 +1085,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (finalList.isEmpty) {
-      return const SizedBox(); // safe fallback
+      return const SizedBox();
     }
 
     return StaggeredGrid.count(
@@ -1285,7 +1095,6 @@ class _HomeScreenState extends State<HomeScreen> {
       children: List.generate(finalList.length, (index) {
         final item = finalList[index];
 
-        // auto height pattern based on index
         double height;
         if (index == 0 || index == 2) {
           height = 137;
