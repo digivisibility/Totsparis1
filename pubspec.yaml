@@ -16,8 +16,8 @@ dependencies:
 
 # Crash
 dependencies:
-  firebase_core: ^2.0.0
-  firebase_crashlytics: ^3.0.0
+  firebase_core: ^latest_version
+  firebase_crashlytics: ^latest_version
 
   # UI & Design
   cupertino_icons: ^1.0.8
