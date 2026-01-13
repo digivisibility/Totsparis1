@@ -10,35 +10,26 @@ workflows:
       cocoapods: default
       
       vars:
-        BUNDLE_ID: "com.totsparis"  # Replace with your actual bundle ID
+        BUNDLE_ID: "com.totsparis"
       
       ios_signing:
         distribution_type: adhoc
-        bundle_identifier: com.totsparis  # Replace with your bundle ID
+        bundle_identifier: com.totsparis
     
     scripts:
       - name: Initialize keychain
         script: |
           keychain initialize
       
-      # 🔥 CREATE FIREBASE PLIST
       - name: Create GoogleService-Info.plist
         script: |
           if [ -z "$IOS_FIREBASE_SECRET" ]; then
-            echo "❌ ERROR: IOS_FIREBASE_SECRET environment variable is not set!"
+            echo "❌ ERROR: IOS_FIREBASE_SECRET not set!"
             exit 1
           fi
-          
           echo "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
-          
-          if [ ! -f "ios/Runner/GoogleService-Info.plist" ]; then
-            echo "❌ ERROR: GoogleService-Info.plist was not created!"
-            exit 1
-          fi
-          
-          echo "✅ GoogleService-Info.plist created successfully"
+          echo "✅ GoogleService-Info.plist created"
       
-      # 🔥 FETCH SIGNING
       - name: Fetch AdHoc signing files
         script: |
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
@@ -54,95 +45,88 @@ workflows:
         script: |
           xcode-project use-profiles
       
-      # 🔥 CRITICAL: Deep clean before install
       - name: Deep clean project
         script: |
-          echo "🧹 Deep cleaning project..."
-          
-          # Clean Flutter
+          echo "🧹 Deep cleaning..."
           flutter clean
-          
-          # Remove all build artifacts
-          rm -rf build/
-          rm -rf .dart_tool/
-          rm -rf ios/Pods
-          rm -rf ios/Podfile.lock
-          rm -rf ios/.symlinks
-          rm -rf ios/Flutter/Flutter.framework
-          rm -rf ios/Flutter/Flutter.podspec
-          
-          echo "✅ Deep clean completed"
+          rm -rf build/ .dart_tool/ ios/Pods ios/Podfile.lock ios/.symlinks
+          echo "✅ Clean completed"
       
-      # 🔥 INSTALL DEPENDENCIES
       - name: Install dependencies
         script: |
-          echo "📦 Getting Flutter dependencies..."
+          echo "📦 Getting dependencies..."
           flutter pub get
-          
-          echo "📦 Installing CocoaPods dependencies..."
           cd ios
-          pod install --repo-update --verbose
+          pod install --repo-update
           cd ..
-          
           echo "✅ Dependencies installed"
       
-      # 🔥 VALIDATE BEFORE BUILD
-      - name: Validate configuration
+      # 🔥 NEW: Check for Dart compilation errors BEFORE building
+      - name: Pre-build validation
         script: |
-          # Validate Firebase plist
-          if ! grep -q "GOOGLE_APP_ID" ios/Runner/GoogleService-Info.plist; then
-            echo "❌ ERROR: Invalid GoogleService-Info.plist"
+          echo "🔍 Analyzing Dart code..."
+          flutter analyze 2>&1 | tee analyze.log
+          
+          if grep -q "error •" analyze.log; then
+            echo "❌ Dart analysis found errors!"
+            cat analyze.log
             exit 1
           fi
           
-          # Validate main.dart syntax
-          echo "🔍 Validating Dart code..."
-          flutter analyze --no-fatal-infos --no-fatal-warnings
-          
-          echo "✅ Validation passed"
+          echo "✅ No Dart errors found"
       
-      # 🔥 BUILD IPA (with verbose output)
-      - name: Build IPA
+      # 🔥 NEW: Build in steps to expose the actual error
+      - name: Build iOS (Step-by-step)
         script: |
-          echo "🔨 Building iOS IPA..."
+          set -e  # Exit on any error
+          set -x  # Print each command
           
-          # Build with verbose output to see exact error
-          flutter build ipa \
-            --release \
-            --verbose \
-            --export-options-plist=/Users/builder/export_options.plist
+          echo "🔨 Step 1: Build Flutter bundle..."
+          flutter build ios-framework --release --output=build/ios/framework
           
-          if [ $? -ne 0 ]; then
-            echo "❌ Build failed"
+          echo "🔨 Step 2: Build iOS app bundle..."
+          flutter build ios --release --no-codesign --verbose
+          
+          echo "🔨 Step 3: Archive and export IPA..."
+          cd ios
+          
+          # Create archive
+          xcodebuild -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath $PWD/build/Runner.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee xcodebuild.log
+          
+          # Check if archive was created
+          if [ ! -d "$PWD/build/Runner.xcarchive" ]; then
+            echo "❌ Archive creation failed!"
+            grep "error:" xcodebuild.log || grep "fatal error:" xcodebuild.log || cat xcodebuild.log
             exit 1
           fi
+          
+          cd ..
+          
+          # Re-sign and create IPA
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
           
           echo "✅ IPA built successfully"
           ls -lh build/ios/ipa/
     
     artifacts:
       - build/ios/ipa/*.ipa
-      - build/ios/archive/Runner.xcarchive/dSYMs/*.dSYM
+      - "*.log"  # Capture all log files for debugging
     
     publishing:
       scripts:
-        - name: Upload dSYMs to Firebase Crashlytics
+        - name: Upload dSYMs to Firebase
           script: |
-            echo "📤 Uploading dSYMs to Firebase Crashlytics..."
-            
             dsymPath=$(find $CM_BUILD_DIR/build/ios/archive/Runner.xcarchive/dSYMs -name "*.dSYM" | head -1)
-            
-            if [[ -z "$dsymPath" ]]; then
-              echo "⚠️ WARNING: No dSYM found, skipping upload"
-              exit 0
-            fi
-            
-            if [ -f "$CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols" ]; then
+            if [[ -n "$dsymPath" ]] && [ -f "$CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols" ]; then
               $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols \
                 -gsp $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist \
                 -p ios "$dsymPath"
-              
-              echo "✅ dSYMs uploaded successfully"
-            else
-              echo "⚠️ WARNING: FirebaseCrashlytics upload-symbols script not found"
             fi
