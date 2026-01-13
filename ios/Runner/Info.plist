@@ -45,24 +45,24 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-
+	
 	<!-- Push Notifications -->
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
 	</array>
-
+	
 	<!-- Firebase -->
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
-
+	
 	<!-- App Transport Security -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-
+	
 	<!-- Permissions -->
 	<key>NSCameraUsageDescription</key>
 	<string>Tots Paris needs camera access to take photos and scan QR codes.</string>
@@ -76,10 +76,11 @@
 	<string>Tots Paris uses your location to show nearby delivery and store options.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Tots Paris uses data to personalize your shopping experience.</string>
-
-	<!-- Google Sign-In -->
+	
+	<!-- URL Schemes -->
 	<key>CFBundleURLTypes</key>
 	<array>
+		<!-- Google Sign-In -->
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -88,8 +89,28 @@
 				<string>com.googleusercontent.apps.1091304297452-lspenpp11uqjnq60rf6mag820n5262o0</string>
 			</array>
 		</dict>
+		<!-- Stripe Payment Deep Link (CRITICAL - ADD THIS) -->
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.totsparis.payment</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>totsparis</string>
+			</array>
+		</dict>
 	</array>
-
+	
+	<!-- LSApplicationQueriesSchemes for external apps (PayPal, payment apps) -->
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>paypal</string>
+		<string>com.paypal.ppclient.touch.v1</string>
+		<string>com.paypal.ppclient.touch.v2</string>
+		<string>org-appextension-feature-password-management</string>
+	</array>
+	
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>
