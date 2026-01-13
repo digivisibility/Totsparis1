@@ -3,64 +3,212 @@ workflows:
     name: iOS AdHoc IPA (Real Device Testing)
     max_build_duration: 60
     instance_type: mac_mini_m2
-
+    
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
-
+      
+      # 🔥 CRITICAL: Set environment variables
+      vars:
+        BUNDLE_ID: "com.totsparis"  # Replace with your actual bundle ID
+        XCODE_WORKSPACE: "Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+      
+      # 🔥 Required for iOS 13+ (Stripe requirement)
+      ios_signing:
+        distribution_type: adhoc
+        bundle_identifier: com.totsparis  # Replace with your bundle ID
+    
     scripts:
       - name: Initialize keychain
         script: |
           keychain initialize
-
-      # 🔥 CREATE FIREBASE PLIST (CRITICAL)
+      
+      # 🔥 CREATE FIREBASE PLIST (CRITICAL FIX - Added validation)
       - name: Create GoogleService-Info.plist
         script: |
+          if [ -z "$IOS_FIREBASE_SECRET" ]; then
+            echo "❌ ERROR: IOS_FIREBASE_SECRET environment variable is not set!"
+            exit 1
+          fi
+          
           echo "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
-
-      # 🔥 FETCH AD-HOC SIGNING (NOT APP STORE)
+          
+          # Verify file was created
+          if [ ! -f "ios/Runner/GoogleService-Info.plist" ]; then
+            echo "❌ ERROR: GoogleService-Info.plist was not created!"
+            exit 1
+          fi
+          
+          echo "✅ GoogleService-Info.plist created successfully"
+          ls -la ios/Runner/GoogleService-Info.plist
+      
+      # 🔥 FETCH AD-HOC SIGNING
       - name: Fetch AdHoc signing files
         script: |
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
             --platform IOS \
             --type IOS_ADHOC \
             --create
-
+      
       - name: Add certificates
         script: |
           keychain add-certificates
-
+      
       - name: Apply provisioning profiles
         script: |
           xcode-project use-profiles
+      
+      # 🔥 CRITICAL: Create/Update Podfile with minimum iOS version
+      - name: Update Podfile for iOS 13.0+
+        script: |
+          cat > ios/Podfile << 'EOF'
+          # Minimum iOS version for Stripe and Firebase
+          platform :ios, '13.0'
 
+          # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+          ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+          project 'Runner', {
+            'Debug' => :debug,
+            'Profile' => :release,
+            'Release' => :release,
+          }
+
+          def flutter_root
+            generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+            unless File.exist?(generated_xcode_build_settings_path)
+              raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+            end
+
+            File.foreach(generated_xcode_build_settings_path) do |line|
+              matches = line.match(/FLUTTER_ROOT\=(.*)/)
+              return matches[1].strip if matches
+            end
+            raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig, then run flutter pub get"
+          end
+
+          require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+          flutter_ios_podfile_setup
+
+          target 'Runner' do
+            use_frameworks!
+            use_modular_headers!
+
+            flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+          end
+
+          post_install do |installer|
+            installer.pods_project.targets.each do |target|
+              flutter_additional_ios_build_settings(target)
+              
+              target.build_configurations.each do |config|
+                # Ensure iOS 13.0 minimum for all pods
+                config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+                
+                # Disable bitcode (deprecated by Apple)
+                config.build_settings['ENABLE_BITCODE'] = 'NO'
+                
+                # Fix for Xcode 15+
+                xcconfig_path = config.base_configuration_reference.real_path
+                xcconfig = File.read(xcconfig_path)
+                xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")
+                File.open(xcconfig_path, "w") { |file| file << xcconfig_mod }
+              end
+            end
+          end
+          EOF
+          
+          echo "✅ Podfile updated with iOS 13.0 minimum"
+      
       - name: Install dependencies
         script: |
+          echo "📦 Cleaning Flutter project..."
           flutter clean
+          
+          echo "📦 Getting Flutter dependencies..."
           flutter pub get
+          
+          echo "📦 Installing CocoaPods dependencies..."
           cd ios
-          pod install --repo-update
+          
+          # Remove old pods
+          rm -rf Pods Podfile.lock .symlinks
+          
+          # Install with repo update
+          pod install --repo-update --verbose
+          
           cd ..
-
+          
+          echo "✅ Dependencies installed successfully"
+      
+      # 🔥 VALIDATE BUILD BEFORE IPA
+      - name: Validate Firebase Configuration
+        script: |
+          # Check if GoogleService-Info.plist exists and is valid
+          if [ ! -f "ios/Runner/GoogleService-Info.plist" ]; then
+            echo "❌ ERROR: GoogleService-Info.plist not found!"
+            exit 1
+          fi
+          
+          # Check if file contains required Firebase keys
+          if ! grep -q "GOOGLE_APP_ID" ios/Runner/GoogleService-Info.plist; then
+            echo "❌ ERROR: GoogleService-Info.plist is invalid or empty!"
+            exit 1
+          fi
+          
+          echo "✅ Firebase configuration validated"
+      
       # ✅ BUILD AD-HOC IPA
       - name: Build IPA (Release / AdHoc)
         script: |
-          flutter build ipa --release
-
+          echo "🔨 Building iOS IPA..."
+          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
+          
+          echo "✅ IPA built successfully"
+          ls -lh build/ios/ipa/
+    
     artifacts:
       - build/ios/ipa/*.ipa
-
-publishing:
-  scripts:
-    - name: Upload dSYMs to Firebase
-      script: | 
-        # Find the dSYM files in the build artifacts
-        dsymPath=$(find $CM_BUILD_DIR/build/ios/archive/Runner.xcarchive/dSYMs -name "Runner.app.dSYM" | head -1)
-        if [[ -z "$dsymPath" ]]; then
-          echo "No dSYM found"
-        else
-          # Run the Firebase upload script (automatically included in pods)
-          $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols --build-phase --validate -ai 1:1091304297452:ios:7e5f2b7c24490690ae66c9
- -- $dsymPath
-        fi
+      - build/ios/archive/Runner.xcarchive/dSYMs/*.dSYM
+    
+    publishing:
+      # 🔥 FIXED: dSYM upload script (removed syntax error)
+      scripts:
+        - name: Upload dSYMs to Firebase Crashlytics
+          script: |
+            echo "📤 Uploading dSYMs to Firebase Crashlytics..."
+            
+            # Find the dSYM file
+            dsymPath=$(find $CM_BUILD_DIR/build/ios/archive/Runner.xcarchive/dSYMs -name "*.dSYM" | head -1)
+            
+            if [[ -z "$dsymPath" ]]; then
+              echo "⚠️ WARNING: No dSYM found, skipping upload"
+              exit 0
+            fi
+            
+            echo "Found dSYM: $dsymPath"
+            
+            # Upload using FirebaseCrashlytics upload-symbols script
+            if [ -f "$CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols" ]; then
+              $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols \
+                -gsp $CM_BUILD_DIR/ios/Runner/GoogleService-Info.plist \
+                -p ios "$dsymPath"
+              
+              echo "✅ dSYMs uploaded successfully"
+            else
+              echo "⚠️ WARNING: FirebaseCrashlytics upload-symbols script not found"
+            fi
+      
+      # Optional: Upload to TestFlight or Distribution
+      app_store_connect:
+        # Uncomment if you want to distribute via TestFlight
+        # api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        # key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        # issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        
+        # submit_to_testflight: true
+        # beta_groups:
+        #   - Internal Testers
