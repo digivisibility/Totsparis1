@@ -1,3 +1,12 @@
+name: maanstore
+description: Kids brand.
+publish_to: 'none'
+
+version: 1.0.0+6
+
+environment:
+  sdk: '^3.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
@@ -26,7 +35,7 @@ dependencies:
   # Core Services
   dio: ^5.7.0
   http: ^1.2.2
-  intl: ^0.20.0  # ✅ CHANGED from ^0.19.0 to ^0.20.0
+  intl: ^0.20.0
   shared_preferences: ^2.3.2
   flutter_riverpod: ^2.5.3
   provider: ^6.1.2
@@ -35,7 +44,7 @@ dependencies:
   # Push Notifications
   onesignal_flutter: ^5.2.5
   
-  # Firebase (Compatible versions for Dart 3.0-4.0)
+  # Firebase (Compatible versions)
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   google_sign_in: ^6.2.1
