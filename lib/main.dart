@@ -13,7 +13,6 @@ import 'package:maanstore/screens/splash_screen/splash_screen_one.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart' as pro;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'Providers/language_change_provider.dart';
 import 'const/constants.dart';
 import 'generated/l10n.dart';
@@ -22,31 +21,34 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // 1. Initialize Firebase (Wrapped to prevent iOS startup crash)
-    try {
-      await Firebase.initializeApp();
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    // 1. Initialize Firebase FIRST (CRITICAL FIX)
+    await Firebase.initializeApp();
+    
+    // Configure Crashlytics (only in release mode)
+    if (kReleaseMode) {
+      FlutterError.onError = (errorDetails) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      };
       PlatformDispatcher.instance.onError = (error, stack) {
         FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
         return true;
       };
-    } catch (e) {
-      debugPrint("Firebase Error: $e");
-      // App continues even if Firebase fails (to prevent crash on tap)
     }
 
-    // 2. Stripe Configuration
+    // 2. Stripe Configuration (FIXED ORDER - Must be AFTER Firebase)
     Stripe.publishableKey = stripePublishableKey;
-    // applySettings() is essential for iOS
-    try {
-      await Stripe.instance.applySettings();
-    } catch (e) {
-      debugPrint("Stripe Error: $e");
-    }
+    
+    // CRITICAL: Use merchantIdentifier for iOS
+    Stripe.merchantIdentifier = 'merchant.com.maanstore'; // Replace with your actual merchant ID
+    
+    // Apply settings (removed await - not needed)
+    Stripe.instance.applySettings();
 
-    // 3. OneSignal Configuration
-    OneSignal.Debug.setLogLevel(OSLogLevel.none);
+    // 3. OneSignal Configuration (AFTER Firebase)
+    OneSignal.Debug.setLogLevel(OSLogLevel.verbose); // Changed to verbose for debugging
     OneSignal.initialize(oneSignalAppId);
+    
+    // Request permission asynchronously (don't block startup)
     OneSignal.Notifications.requestPermission(true);
 
     // 4. Load Theme
@@ -60,11 +62,45 @@ Future<void> main() async {
     ]);
 
     runApp(const ProviderScope(child: MyApp()));
+    
   } catch (e, stack) {
-    debugPrint("Critical Startup Error: $e");
-    debugPrint(stack.toString());
-    // Fallback app to show error if everything fails
-    runApp(MaterialApp(home: Scaffold(body: Center(child: Text("Fatal Error: $e")))));
+    debugPrint("❌ CRITICAL STARTUP ERROR: $e");
+    debugPrint("Stack trace: $stack");
+    
+    // Log to Crashlytics if available
+    try {
+      FirebaseCrashlytics.instance.recordError(e, stack, fatal: true);
+    } catch (_) {}
+    
+    // Show error screen
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 60, color: Colors.red),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'App Initialization Failed',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Error: $e',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -80,8 +116,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
-    _themeManager.addListener(themeListener);
     super.initState();
+    _themeManager.addListener(themeListener);
   }
 
   @override
@@ -90,7 +126,7 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
-  themeListener() {
+  void themeListener() {
     if (mounted) setState(() {});
   }
 
