@@ -31,6 +31,9 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
+  # Ensure OneSignal is linked correctly
+  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0.0'
+
   target 'RunnerTests' do
     inherit! :search_paths
   end
@@ -41,30 +44,17 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
-      # Swift version
+      # FIX 1: Bypass Swift 6 spacing errors (Required for flutter_sslcommerz)
       config.build_settings['SWIFT_VERSION'] = '5.0'
       
-      # iOS Deployment Target
+      # FIX 2: Set Deployment Target to 15.0 for Firebase 2026
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
       
-      # Disable script sandboxing (prevents build failures)
+      # FIX 3: Prevent PhaseScriptExecution failures on Codemagic/Xcode 16+
       config.build_settings['ENABLE_USER_SCRIPT_SANDBOXING'] = 'NO'
       
-      # 🔥 CRITICAL FIX: Xcode 15+ compatibility for Firebase
-      # This fixes the DT_TOOLCHAIN_DIR error that causes crashes
-      xcconfig_path = config.base_configuration_reference.real_path
-      if xcconfig_path && File.exist?(xcconfig_path)
-        xcconfig = File.read(xcconfig_path)
-        xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")
-        File.open(xcconfig_path, "w") { |file| file << xcconfig_mod }
-      end
-      
-      # Disable Bitcode (deprecated by Apple)
-      config.build_settings['ENABLE_BITCODE'] = 'NO'
-      
-      # 🔥 Fix for Firebase and other pods on Xcode 15+
-      config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      # FIX 4: Architecture cleanup
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386 arm64'
     end
   end
 end
