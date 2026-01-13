@@ -8,7 +8,7 @@ import 'package:maanstore/screens/profile_screen/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../const/constants.dart';
-import '../../main.dart';
+// import '../../main.dart';
 import '../../models/add_to_cart_model.dart';
 import '../../models/wishlist_model.dart';
 import '../../Providers/wishlist_provider.dart';
