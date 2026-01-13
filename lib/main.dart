@@ -21,7 +21,7 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // 1. Initialize Firebase FIRST (CRITICAL FIX)
+    // 1. Initialize Firebase
     await Firebase.initializeApp();
     
     // Configure Crashlytics (only in release mode)
@@ -35,20 +35,15 @@ Future<void> main() async {
       };
     }
 
-    // 2. Stripe Configuration (FIXED ORDER - Must be AFTER Firebase)
+    // 2. Stripe Configuration
     Stripe.publishableKey = stripePublishableKey;
-    
-    // CRITICAL: Use merchantIdentifier for iOS
-    Stripe.merchantIdentifier = 'merchant.com.maanstore'; // Replace with your actual merchant ID
-    
-    // Apply settings (removed await - not needed)
+    Stripe.merchantIdentifier = 'merchant.com.totsparis';
+    Stripe.urlScheme = 'totsparis';
     Stripe.instance.applySettings();
 
-    // 3. OneSignal Configuration (AFTER Firebase)
-    OneSignal.Debug.setLogLevel(OSLogLevel.verbose); // Changed to verbose for debugging
+    // 3. OneSignal Configuration
+    OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     OneSignal.initialize(oneSignalAppId);
-    
-    // Request permission asynchronously (don't block startup)
     OneSignal.Notifications.requestPermission(true);
 
     // 4. Load Theme
@@ -67,12 +62,10 @@ Future<void> main() async {
     debugPrint("❌ CRITICAL STARTUP ERROR: $e");
     debugPrint("Stack trace: $stack");
     
-    // Log to Crashlytics if available
     try {
       FirebaseCrashlytics.instance.recordError(e, stack, fatal: true);
     } catch (_) {}
     
-    // Show error screen
     runApp(
       MaterialApp(
         home: Scaffold(
