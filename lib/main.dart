@@ -37,8 +37,8 @@ Future<void> main() async {
 
     // 2. Stripe Configuration
     Stripe.publishableKey = stripePublishableKey;
-    Stripe.merchantIdentifier = 'merchant.com.totsparis';
-    Stripe.urlScheme = 'totsparis';
+    Stripe.merchantIdentifier = stripeMerchantIdentifier;
+    Stripe.urlScheme = stripeUrlScheme;
     Stripe.instance.applySettings();
 
     // 3. OneSignal Configuration
