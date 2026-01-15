@@ -44,11 +44,9 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 
-	<!-- Firebase & Push -->
+	<!-- Firebase & Sign-In -->
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<true/>
-	
-	<!-- Google Sign-In -->
+	<false/>
 	<key>GIDClientID</key>
 	<string>1091304297452-lspenpp11uqjnq60rf6mag820n5262o0.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
@@ -63,13 +61,7 @@
 		</dict>
 	</array>
 
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
-
-	<!-- Permissions (Required for libraries to prevent boot crash) -->
+	<!-- Privacy Keys (Mandatory to prevent boot crash) -->
 	<key>NSCameraUsageDescription</key>
 	<string>Tots Paris needs camera access to take photos and scan QR codes.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -80,22 +72,26 @@
 	<string>Tots Paris uses the microphone for voice and video features.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Tots Paris uses your location to show nearby delivery and store options.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Tots Paris uses your location to show nearby delivery and store options.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Tots Paris uses data to personalize your shopping experience.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This app requires Bluetooth access for better connectivity.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>This app requires Bluetooth access for better connectivity.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app requires access to your media library.</string>
 
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
 	</array>
-
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>https</string>
-		<string>http</string>
-		<string>tel</string>
-		<string>mailto</string>
-	</array>
-
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>
