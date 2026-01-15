@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Tots Paris</string>
+	<string>Maan Store Woocommerce Full App</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>tots_paris</string>
+	<string>maan_store_woocommerce_full_app</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -31,6 +31,8 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -43,56 +45,5 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-
-	<!-- Firebase & Sign-In -->
-	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
-	<key>GIDClientID</key>
-	<string>1091304297452-lspenpp11uqjnq60rf6mag820n5262o0.apps.googleusercontent.com</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.1091304297452-lspenpp11uqjnq60rf6mag820n5262o0</string>
-			</array>
-		</dict>
-	</array>
-
-	<!-- Privacy Keys (Mandatory to prevent boot crash) -->
-	<key>NSCameraUsageDescription</key>
-	<string>Tots Paris needs camera access to take photos and scan QR codes.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Tots Paris needs access to your photos to upload and share images.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Tots Paris needs permission to save images to your photo library.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Tots Paris uses the microphone for voice and video features.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Tots Paris uses your location to show nearby delivery and store options.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Tots Paris uses your location to show nearby delivery and store options.</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>Tots Paris uses data to personalize your shopping experience.</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>This app requires Bluetooth access for better connectivity.</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>This app requires Bluetooth access for better connectivity.</string>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>This app requires access to your media library.</string>
-
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 </dict>
 </plist>
