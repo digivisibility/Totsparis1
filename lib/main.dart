@@ -1,5 +1,7 @@
 import 'package:community_material_icon/community_material_icon.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart'; // Required for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -28,11 +30,6 @@ import 'generated/l10n.dart' as lang;
 import 'generated/l10n.dart';
 import 'models/add_to_cart_model.dart';
 import 'Providers/wishlist_provider.dart';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/foundation.dart'; // Required for kDebugMode
-import 'package:flutter/material.dart';
 
 Future<void> main() async {
   // 1. Ensure Flutter is ready
@@ -165,7 +162,7 @@ void configLoading() {
     ..backgroundColor = Colors.green
     ..indicatorColor = Colors.yellow
     ..textColor = Colors.yellow
-    ..maskColor = Colors.blue.withOpacity(0.5)
+    ..maskColor = Colors.blue.withValues(alpha: 0.5)
     ..userInteractions = true
     ..dismissOnTap = false;
   //..customAnimation = CustomAnimation();
@@ -563,7 +560,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       : lightTitleColor),
                             ),
                             trailing: Switch(
-                              activeColor: kPrimaryColor,
+                              activeThumbColor: kPrimaryColor,
                               inactiveTrackColor: kBorderColorTextField,
                               value: _themeManager.themeMode == ThemeMode.dark,
                               onChanged: (newValue) async {
@@ -599,7 +596,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ref.read(cartNotifier.notifier).clearCart();
                               ref.read(wishlistProvider.notifier).clearWishlist();
 
-                              if (!mounted) return;
+                              if (!context.mounted) return;
                               Navigator.pushAndRemoveUntil(
                                   context,
                                   MaterialPageRoute(
@@ -658,7 +655,7 @@ class _SwitchButtonState extends State<SwitchButton> {
   @override
   Widget build(BuildContext context) {
     return Switch(
-      activeColor: kPrimaryColor,
+      activeThumbColor: kPrimaryColor,
       inactiveThumbColor: Colors.white,
       inactiveTrackColor: kBorderColorTextField,
       value: _themeManager.themeMode == ThemeMode.dark,
