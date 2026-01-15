@@ -31,8 +31,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -45,13 +43,33 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Firebase & Push -->
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
+	<true/>
+	
+	<!-- Google Sign-In -->
+	<key>GIDClientID</key>
+	<string>1091304297452-lspenpp11uqjnq60rf6mag820n5262o0.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1091304297452-lspenpp11uqjnq60rf6mag820n5262o0</string>
+			</array>
+		</dict>
+	</array>
+
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+
+	<!-- Permissions (Required for libraries to prevent boot crash) -->
 	<key>NSCameraUsageDescription</key>
 	<string>Tots Paris needs camera access to take photos and scan QR codes.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -64,20 +82,21 @@
 	<string>Tots Paris uses your location to show nearby delivery and store options.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>Tots Paris uses data to personalize your shopping experience.</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.1091304297452-lspenpp11uqjnq60rf6mag820n5262o0</string>
-			</array>
-		</dict>
-	</array>
+
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
 	</array>
+
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>https</string>
+		<string>http</string>
+		<string>tel</string>
+		<string>mailto</string>
+	</array>
+
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
