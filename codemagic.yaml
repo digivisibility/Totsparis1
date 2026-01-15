@@ -37,16 +37,17 @@ workflows:
 
       - name: Install dependencies
         script: |
-          flutter clean
           flutter pub get
           cd ios
-          pod install --repo-update
+          # Force update the CocoaPods repo to find the version specified in Podfile
+          pod repo update
+          pod install
           cd ..
 
       # ✅ BUILD AD-HOC IPA
       - name: Build IPA (Release / AdHoc)
         script: |
-          flutter build ipa --release
+          flutter build ipa --release --no-codesign
 
     artifacts:
       - build/ios/ipa/*.ipa
@@ -61,6 +62,5 @@ publishing:
           echo "No dSYM found"
         else
           # Run the Firebase upload script (automatically included in pods)
-          $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols --build-phase --validate -ai 1:1091304297452:ios:7e5f2b7c24490690ae66c9
- -- $dsymPath
+          $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols --build-phase --validate -ai 1:1091304297452:ios:7e5f2b7c24490690ae66c9 -- $dsymPath
         fi
