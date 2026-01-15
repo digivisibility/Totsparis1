@@ -5,13 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
-// import 'package:flutter_paystack/flutter_paystack.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_sslcommerz/model/SSLCSdkType.dart';
-import 'package:flutter_sslcommerz/model/SSLCTransactionInfoModel.dart';
-import 'package:flutter_sslcommerz/model/SSLCommerzInitialization.dart';
-import 'package:flutter_sslcommerz/model/SSLCurrencyType.dart';
-import 'package:flutter_sslcommerz/sslcommerz.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_tap_payment/flutter_tap_payment.dart';
 import 'package:google_fonts/google_fonts.dart' hide Config;
@@ -37,7 +31,6 @@ import '../Theme/theme.dart';
 import '../home_screens/home.dart';
 import 'add_new_address_2.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:flutter_tap_payment/flutter_tap_payment.dart';
 
 class CheckOutScreen extends StatefulWidget {
   const CheckOutScreen({Key? key, this.couponPrice}) : super(key: key);
@@ -55,14 +48,12 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
   APIService? apiService;
   int initialValue = 1;
   bool isSuccess = false;
-  // final plugin = PaystackPlugin();
 
   String whichPaymentIsChecked = 'Cash on Delivery';
 
   @override
   void initState() {
     apiService = APIService();
-    // plugin.initialize(publicKey: paystackPublicId);
     super.initState();
   }
 
@@ -418,43 +409,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                   ).visible(useTap),
                                   const SizedBox(
                                     height: 10.0,
-                                  ).visible(useSslCommerz),
-                                  Material(
-                                    elevation: 0.0,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10.0),
-                                        side: BorderSide(
-                                            color: whichPaymentIsChecked == 'SSLCommerz'
-                                                ? primaryColor
-                                                : isDark
-                                                    ? darkContainer
-                                                    : secondaryColor3)),
-                                    color: isDark ? darkContainer : Colors.white,
-                                    child: CheckboxListTile(
-                                      value: whichPaymentIsChecked == 'SSLCommerz',
-                                      checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-                                      onChanged: (val) {
-                                        setState(() {
-                                          val == true ? whichPaymentIsChecked = 'SSLCommerz' : whichPaymentIsChecked = 'Cash on Delivery';
-                                        });
-                                      },
-                                      contentPadding: const EdgeInsets.all(10.0),
-                                      activeColor: primaryColor,
-                                      title: Text(
-                                        'SSLCommerz',
-                                        style: TextStyle(
-                                          color: isDark ? darkTitleColor : lightTitleColor,
-                                        ),
-                                      ),
-                                      secondary: Image.asset(
-                                        'images/ssl.png',
-                                        height: 50.0,
-                                        width: 80.0,
-                                      ),
-                                    ),
-                                  ).visible(useSslCommerz),
-                                  const SizedBox(
-                                    height: 10.0,
                                   ).visible(usePaytm),
                                   Material(
                                     elevation: 0.0,
@@ -521,37 +475,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                       ),
                                     ),
                                   ).visible(useRazorpay),
-                                  // const SizedBox(
-                                  //   height: 10.0,
-                                  // ).visible(usePaystack),
-                                  // Material(
-                                  //   elevation: 0.0,
-                                  //   shape: RoundedRectangleBorder(
-                                  //       borderRadius: BorderRadius.circular(10.0), side: BorderSide(color: whichPaymentIsChecked == 'Paystack' ? kPrimaryColor : secondaryColor3.withOpacity(0.1))),
-                                  //   color: isDark ? darkContainer : Colors.white,
-                                  //   child: CheckboxListTile(
-                                  //     value: whichPaymentIsChecked == 'Paystack',
-                                  //     checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-                                  //     onChanged: (val) {
-                                  //       setState(() {
-                                  //         val == true ? whichPaymentIsChecked = 'Paystack' : whichPaymentIsChecked = 'Paypal';
-                                  //       });
-                                  //     },
-                                  //     contentPadding: const EdgeInsets.all(10.0),
-                                  //     activeColor: kPrimaryColor,
-                                  //     title: Text(
-                                  //       'Paystack',
-                                  //       style: TextStyle(
-                                  //         color: isDark ? darkTitleColor : lightTitleColor,
-                                  //       ),
-                                  //     ),
-                                  //     secondary: Image.asset(
-                                  //       'images/paystack-logo.png',
-                                  //       height: 50.0,
-                                  //       width: 80.0,
-                                  //     ),
-                                  //   ),
-                                  // ).visible(usePaystack),
                                   const SizedBox(
                                     height: 10.0,
                                   ).visible(useFlutterwave),
@@ -772,34 +695,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                                             }
                                           },
                                         );
-                                        // Button1(
-                                        //   buttonText: lang.S.of(context).payWithWebCheckoutButton,
-                                        //   buttonColor: primaryColor,
-                                        //   onPressFunction: () {
-                                        //     EasyLoading.show(
-                                        //       status: lang.S.of(context).easyLoadingCreatingOrder,
-                                        //     );
-                                        //     apiService?.createOrder(retrieveCustomer!, lineItems, 'Cash on Delivery', false, cart.coupon).then((value) async {
-                                        //       if (value) {
-                                        //         var snap = await apiService!.getListOfOrder();
-                                        //         if (snap.isNotEmpty) {
-                                        //           // ignore: use_build_context_synchronously
-                                        //           MyWebView(
-                                        //             url: snap[0].paymentUrl,
-                                        //             id: snap[0].id.toString(),
-                                        //           ).launch(context);
-                                        //         }
-                                        //
-                                        //         EasyLoading.dismiss(animation: true);
-                                        //         cart.cartOtherInfoList.clear();
-                                        //         cart.cartItems.clear();
-                                        //         cart.coupon.clear();
-                                        //         ref.refresh(getOrders);
-                                        //       } else {
-                                        //         EasyLoading.showError(lang.S.of(context).easyLoadingError);
-                                        //       }
-                                        //     });
-                                        //   });
                                       }),
                                     ],
                                   )
@@ -835,25 +730,12 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       case 'Paypal':
         _handlePaypalPayment(cart, ref);
         break;
-      case 'SSLCommerz':
-        _handleSslCommerzPayment(cart, ref);
-        break;
-      // case 'Flutterwave':
-      //   _handleFlutterwavePayment(cart, ref);
-      //   break;
-      // case 'Paystack':
-      //   _handlePayStackPayment(cart, ref);
-      //   break;
       case 'Stripe':
         _handleStripePayment(cart, ref);
         break;
       case 'Tap':
         _handleTapPayment(cart, ref);
         break;
-      // case 'Paytm':
-      //   PaytmConfig().generateTxnToken(widget.couponPrice == null ? cart.cartTotalPriceF(initialValue) : (cart.cartTotalPriceF(initialValue) - cart.promoPrice),
-      //       DateTime.now().millisecondsSinceEpoch.toString());
-      //   break;
       case 'Webview':
         _handleWebviewPayment(cart, ref);
         break;
@@ -862,62 +744,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
         break;
       default:
         _handleCashOnDelivery(cart, ref);
-    }
-  }
-
-  Future<void> _handleSslCommerzPayment(CartNotifier cart, WidgetRef ref) async {
-    int amount = widget.couponPrice == null ? cart.cartTotalPriceF(initialValue).toInt() : (cart.cartTotalPriceF(initialValue) - cart.promoPrice).toInt();
-
-    Sslcommerz sslcommerz = Sslcommerz(
-      initializer: SSLCommerzInitialization(
-        //Use the ipn if you have valid one, or it will fail the transaction.
-        ipn_url: "www.ipnurl.com",
-        currency: SSLCurrencyType.BDT,
-        product_category: "Food",
-        sdkType: sslSandbox ? SSLCSdkType.TESTBOX : SSLCSdkType.LIVE,
-        store_id: storeId,
-        store_passwd: storePassword,
-        total_amount: amount.toDouble(),
-        tran_id: DateTime.now().millisecondsSinceEpoch.toString(),
-      ),
-    );
-    try {
-      SSLCTransactionInfoModel result = await sslcommerz.payNow();
-
-      if (result.status!.toLowerCase() == "failed") {
-        Fluttertoast.showToast(
-          msg: "Transaction is Failed....",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      } else if (result.status!.toLowerCase() == "closed") {
-        Fluttertoast.showToast(
-          msg: "SDK Closed by User",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 16.0,
-        );
-      } else {
-        _handleOrderCreate(true, 'SSLCommerz', cart, ref);
-        // Fluttertoast.showToast(
-        //     msg:
-        //     "Transaction is ${result.status} and Amount is ${result.amount}",
-        //     toastLength: Toast.LENGTH_SHORT,
-        //     gravity: ToastGravity.CENTER,
-        //     timeInSecForIosWeb: 1,
-        //     backgroundColor: Colors.black,
-        //     textColor: Colors.white,
-        //     fontSize: 16.0);
-      }
-    } catch (e) {
-      debugPrint(e.toString());
     }
   }
 
@@ -954,12 +780,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
               },
               // "merchant": {"id": ""},
               "source": const {"id": "src_card"},
-              // "destinations": {
-              //   "destination": [
-              //     {"id": "480593777", "amount": 2, "currency": "KWD"},
-              //     {"id": "486374777", "amount": 3, "currency": "KWD"}
-              //   ]
-              // }
             },
             onSuccess: (Map params) async {
               _handleOrderCreate(true, 'Tap', cart, ref);
@@ -1090,10 +910,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
                   }
                 },
                 "description": "Grocery Order From MaanGrocery",
-                // "payment_options": {
-                //   "allowed_payment_method":
-                //       "INSTANT_FUNDING_SOURCE"
-                // },
                 "item_list": {
                   "items": [
                     {
@@ -1140,50 +956,6 @@ class _CheckOutScreenState extends State<CheckOutScreen> {
       }
     });
   }
-
-  //Paystack payment
-  // _handlePayStackPayment(CartNotifier cart, WidgetRef ref) async {
-  //   Charge charge = Charge()
-  //     ..amount = widget.couponPrice == null ? (cart.cartTotalPriceF(initialValue) * 100).toInt() : ((cart.cartTotalPriceF(initialValue) - cart.promoPrice) * 100).toInt()
-  //     ..reference = DateTime.now().microsecondsSinceEpoch.toString()
-  //     ..currency = payStackCurrency
-  //     ..email = retrieveCustomer?.email ?? 'test@test.com';
-  //   CheckoutResponse response = await plugin.checkout(
-  //     context,
-  //     fullscreen: true,
-  //     method: CheckoutMethod.card,
-  //     charge: charge,
-  //   );
-  //   if (response.status) {
-  //     _handleOrderCreate(true, 'Paystack', cart, ref);
-  //   } else {
-  //     EasyLoading.showError(response.message);
-  //   }
-  // }
-
-  //Flutterwave payment
-  // _handleFlutterwavePayment(CartNotifier cart, WidgetRef ref) async {
-  //   final Customer customer = Customer(
-  //     name: "${retrieveCustomer!.shipping!.firstName ?? ''} ${retrieveCustomer!.shipping!.lastName ?? ''}",
-  //     phoneNumber: retrieveCustomer!.shipping!.phone ?? '',
-  //     email: retrieveCustomer!.email ?? '',
-  //   );
-  //   final Flutterwave flutterwave = Flutterwave(
-  //       context: context,
-  //       publicKey: flutterwavePublicKey,
-  //       currency: flutterwaveCurrency,
-  //       redirectUrl: 'https://facebook.com',
-  //       txRef: DateTime.now().millisecondsSinceEpoch.toString(),
-  //       amount: widget.couponPrice == null ? cart.cartTotalPriceF(initialValue).toString() : (cart.cartTotalPriceF(initialValue) - cart.promoPrice).toString(),
-  //       customer: customer,
-  //       paymentOptions: "card, payattitude, barter, bank transfer, ussd",
-  //       customization: Customization(title: "Test Payment"),
-  //       isTestMode: sandbox);
-  //   final ChargeResponse response = await flutterwave.charge();
-  //   if (response.success == true) {
-  //     _handleOrderCreate(true, 'Flutterwave', cart, ref);
-  //   } else {}
-  // }
 }
 
 class MyWebView extends StatefulWidget {
@@ -1212,9 +984,6 @@ class _MyWebViewState extends State<MyWebView> {
 
   @override
   Widget build(BuildContext context) {
-    // print(currentUrl?.indexOf('?'));
-    // print(currentUrl?.substring(0, currentUrl?.indexOf('?')));
-    // print(Config.orderConfirmUrl + widget.id.toString());
     return Scaffold(
       body: Stack(
         children: [
