@@ -7,19 +7,17 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      cocoapods: 1.14.3  # Pin to latest stable version for reliability
+      cocoapods: 1.14.3  # Use a known recent stable version
 
     scripts:
       - name: Initialize keychain
         script: |
           keychain initialize
 
-      # 🔥 CREATE FIREBASE PLIST (CRITICAL)
       - name: Create GoogleService-Info.plist
         script: |
           echo "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
 
-      # 🔥 FETCH AD-HOC SIGNING (NOT APP STORE)
       - name: Fetch AdHoc signing files
         script: |
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
@@ -35,21 +33,24 @@ workflows:
         script: |
           xcode-project use-profiles
 
-      # ✅ INSTALL DEPENDENCIES
       - name: Install dependencies
         script: |
           flutter pub get
-          # Clean Pods to avoid conflicts
+
+          # Clean up outdated pods & lock file
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
+
           cd ios
-          echo "Updating CocoaPods specs repo..."
+
+          echo "Updating CocoaPods specs repository..."
           pod repo update
-          echo "Installing CocoaPods dependencies..."
+
+          echo "Installing pods..."
           pod install
+
           cd ..
 
-      # ✅ BUILD AD-HOC IPA
       - name: Build IPA (Release / AdHoc)
         script: |
           flutter build ipa --release --no-codesign
@@ -61,7 +62,6 @@ publishing:
   scripts:
     - name: Upload dSYMs to Firebase
       script: |
-        # Locate the dSYM files
         dsymPath=$(find $CM_BUILD_DIR/build/ios/archive/Runner.xcarchive/dSYMs -name "Runner.app.dSYM" | head -1)
         if [[ -z "$dsymPath" ]]; then
           echo "No dSYM found"

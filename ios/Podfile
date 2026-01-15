@@ -1,4 +1,5 @@
-# platform :ios, '12.0'
+# Uncomment and set platform if needed
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -31,9 +32,9 @@ target 'Runner' do
   use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-  
-  # Pin to compatible version via Git to bypass specs repo "out-of-date" errors
-  pod 'SSLCommerz-iOS', :git => 'https://github.com/sslcommerz/SSLCommerz-iOS.git', :tag => '1.0.1'
+
+  # ✅ Correct SSLCommerz pod from CocoaPods
+  pod 'SSLCommerzSDK'
 
   target 'RunnerTests' do
     inherit! :search_paths
@@ -43,9 +44,9 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
-    
+
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
       # Fix for Swift compiler issues in some CI environments
       config.build_settings['SWIFT_VERSION'] = '5.0'
     end
