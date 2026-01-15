@@ -38,10 +38,12 @@ workflows:
       - name: Install dependencies
         script: |
           flutter pub get
+          # Clean up existing pod artifacts to prevent resolution conflicts
+          rm -rf ios/Pods
+          rm -f ios/Podfile.lock
           cd ios
-          # Force update the CocoaPods repo to find the version specified in Podfile
-          pod repo update
-          pod install
+          # Use --repo-update to ensure the latest specs are fetched for the pinned version
+          pod install --repo-update
           cd ..
 
       # ✅ BUILD AD-HOC IPA
