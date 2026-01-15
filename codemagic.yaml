@@ -7,7 +7,7 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      cocoapods: default
+      cocoapods: 1.14.3  # Pin to latest stable version for reliability
 
     scripts:
       - name: Initialize keychain
@@ -35,15 +35,18 @@ workflows:
         script: |
           xcode-project use-profiles
 
+      # ✅ INSTALL DEPENDENCIES
       - name: Install dependencies
         script: |
           flutter pub get
-          # Clean up existing pod artifacts to prevent resolution conflicts
+          # Clean Pods to avoid conflicts
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
           cd ios
-          # Use --repo-update to ensure the latest specs are fetched for the pinned version
-          pod install --repo-update
+          echo "Updating CocoaPods specs repo..."
+          pod repo update
+          echo "Installing CocoaPods dependencies..."
+          pod install
           cd ..
 
       # ✅ BUILD AD-HOC IPA
@@ -57,12 +60,12 @@ workflows:
 publishing:
   scripts:
     - name: Upload dSYMs to Firebase
-      script: | 
-        # Find the dSYM files in the build artifacts
+      script: |
+        # Locate the dSYM files
         dsymPath=$(find $CM_BUILD_DIR/build/ios/archive/Runner.xcarchive/dSYMs -name "Runner.app.dSYM" | head -1)
         if [[ -z "$dsymPath" ]]; then
           echo "No dSYM found"
         else
-          # Run the Firebase upload script (automatically included in pods)
+          echo "Uploading dSYM to Firebase Crashlytics..."
           $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols --build-phase --validate -ai 1:1091304297452:ios:7e5f2b7c24490690ae66c9 -- $dsymPath
         fi
