@@ -14,10 +14,13 @@ workflows:
         script: |
           keychain initialize
 
-      # 🔥 CREATE FIREBASE PLIST (CRITICAL)
+      # 🔥 CREATE FIREBASE PLIST (IMPROVED)
       - name: Create GoogleService-Info.plist
         script: |
+          mkdir -p ios/Runner
           echo "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
+          # Verify the file was created
+          ls -la ios/Runner/GoogleService-Info.plist
 
       # 🔥 FETCH AD-HOC SIGNING (NOT APP STORE)
       - name: Fetch AdHoc signing files
@@ -38,16 +41,17 @@ workflows:
       - name: Install dependencies
         script: |
           flutter pub get
-          # COMPLETELY CLEAN PODS
+          # Force clean pod install to recognize new deployment target 13.0
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
           cd ios
-          pod install
+          pod install --repo-update
           cd ..
 
       # ✅ BUILD AD-HOC IPA
       - name: Build IPA (Release / AdHoc)
         script: |
+          # Use --release explicitly
           flutter build ipa --release --no-codesign
 
     artifacts:
