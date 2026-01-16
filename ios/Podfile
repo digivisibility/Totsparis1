@@ -1,8 +1,6 @@
-# Use ONLY the CDN source to avoid "specs repository out-of-date" errors on CI
-source 'https://cdn.cocoapods.org/'
+# platform :ios, '12.0'
 
-platform :ios, '12.0'
-
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 project 'Runner', {
@@ -34,9 +32,8 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
-  # Pin to version 1.0.1 to resolve the "no member additionalInformation" compiler error
-  # This version is known to be compatible with the flutter_sslcommerz plugin
-  pod 'SSLCommerz-iOS', '1.0.1'
+  # DIRECT GIT FIX: Bypasses the "out-of-date" specs repo error and fixes compiler issues
+  pod 'SSLCommerz-iOS', :git => 'https://github.com/sslcommerz/SSLCommerz-iOS.git', :tag => 'v1.0.1'
 
   target 'RunnerTests' do
     inherit! :search_paths

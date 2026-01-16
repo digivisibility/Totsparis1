@@ -38,11 +38,11 @@ workflows:
       - name: Install dependencies
         script: |
           flutter pub get
-          # Force a clean pod install
+          # COMPLETELY CLEAN PODS
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
           cd ios
-          pod install --repo-update
+          pod install
           cd ..
 
       # ✅ BUILD AD-HOC IPA
