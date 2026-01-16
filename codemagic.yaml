@@ -7,17 +7,19 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      cocoapods: 1.14.3  # Use a known recent stable version
+      cocoapods: default
 
     scripts:
       - name: Initialize keychain
         script: |
           keychain initialize
 
+      # 🔥 CREATE FIREBASE PLIST (CRITICAL)
       - name: Create GoogleService-Info.plist
         script: |
           echo "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
 
+      # 🔥 FETCH AD-HOC SIGNING (NOT APP STORE)
       - name: Fetch AdHoc signing files
         script: |
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
@@ -36,21 +38,14 @@ workflows:
       - name: Install dependencies
         script: |
           flutter pub get
-
-          # Clean up outdated pods & lock file
+          # Force a clean pod install
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
-
           cd ios
-
-          echo "Updating CocoaPods specs repository..."
-          pod repo update
-
-          echo "Installing pods..."
-          pod install
-
+          pod install --repo-update
           cd ..
 
+      # ✅ BUILD AD-HOC IPA
       - name: Build IPA (Release / AdHoc)
         script: |
           flutter build ipa --release --no-codesign
@@ -61,11 +56,12 @@ workflows:
 publishing:
   scripts:
     - name: Upload dSYMs to Firebase
-      script: |
+      script: | 
+        # Find the dSYM files in the build artifacts
         dsymPath=$(find $CM_BUILD_DIR/build/ios/archive/Runner.xcarchive/dSYMs -name "Runner.app.dSYM" | head -1)
         if [[ -z "$dsymPath" ]]; then
           echo "No dSYM found"
         else
-          echo "Uploading dSYM to Firebase Crashlytics..."
+          # Run the Firebase upload script (automatically included in pods)
           $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols --build-phase --validate -ai 1:1091304297452:ios:7e5f2b7c24490690ae66c9 -- $dsymPath
         fi
