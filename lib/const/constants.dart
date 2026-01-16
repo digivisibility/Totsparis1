@@ -13,18 +13,12 @@ const bool useFlutterwave = false;
 const bool useStripe = false;
 const bool useWebview = false;
 const bool useTap = false;
-const bool useSslCommerz = false;
 const bool useCashOnDelivery = true;
 
 
 String purchaseCode = '528cdb9a-5d37-4292-a2b5-b792d5eca03a';
 //Tap Payment Settings
 const String tapApiId = 'Your Api Key';
-
-//SSLCommerz Settings
-const String storeId = 'maant62a8633caf4a3';
-const String storePassword = 'maant62a8633caf4a3@ssl';
-const bool sslSandbox = true;
 
 //Paypal Settings
 const String paypalClientId = 'ATKxCBB49G3rPw4DG_0vDmygbZeFKubzub7jGWpeUW5jzfElK9qOzqJOfrBTYvS7RuIhoPdWHB4DIdLJ';
