@@ -14,13 +14,21 @@ workflows:
         script: |
           keychain initialize
 
-      # 🔥 CREATE FIREBASE PLIST (EARLY)
+      # 🔥 CREATE FIREBASE PLIST (ROBUST VERSION)
       - name: Create GoogleService-Info.plist
         script: |
+          set -e # Exit on error
           mkdir -p ios/Runner
-          echo "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
-          # Ensure file exists for Xcode's build phase
-          touch ios/Runner/GoogleService-Info.plist
+          # Use printf to avoid issues with multi-line strings or escaping
+          printf "%s" "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
+          
+          # Verify the file is not empty and looks like a Plist
+          if grep -q "GOOGLE_APP_ID" ios/Runner/GoogleService-Info.plist; then
+            echo "✅ GoogleService-Info.plist created and verified."
+          else
+            echo "❌ ERROR: GoogleService-Info.plist is invalid or IOS_FIREBASE_SECRET is empty!"
+            exit 1
+          fi
 
       # 🔥 FETCH AD-HOC SIGNING (NOT APP STORE)
       - name: Fetch AdHoc signing files
@@ -41,7 +49,6 @@ workflows:
       - name: Install dependencies
         script: |
           flutter pub get
-          # Clean pods to ensure the new deployment target (13.0) and Plist are recognized
           rm -rf ios/Pods
           rm -f ios/Podfile.lock
           cd ios
@@ -51,7 +58,6 @@ workflows:
       # ✅ BUILD AD-HOC IPA
       - name: Build IPA (Release / AdHoc)
         script: |
-          # Use explicit release mode
           flutter build ipa --release --no-codesign
 
     artifacts:
@@ -66,6 +72,6 @@ publishing:
         if [[ -z "$dsymPath" ]]; then
           echo "No dSYM found"
         else
-          # Run the Firebase upload script (automatically included in pods)
+          # Run the Firebase upload script
           $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols --build-phase --validate -ai 1:1091304297452:ios:7e5f2b7c24490690ae66c9 -- $dsymPath
         fi
