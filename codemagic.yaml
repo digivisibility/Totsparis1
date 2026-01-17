@@ -1,6 +1,6 @@
 workflows:
   ios-adhoc:
-    name: iOS AdHoc IPA (Real Device Testing)
+    name: iOS AdHoc IPA
     max_build_duration: 60
     instance_type: mac_mini_m2
 
@@ -14,23 +14,6 @@ workflows:
         script: |
           keychain initialize
 
-      # 🔥 CREATE FIREBASE PLIST (ROBUST VERSION)
-      - name: Create GoogleService-Info.plist
-        script: |
-          set -e # Exit on error
-          mkdir -p ios/Runner
-          # Use printf to avoid issues with multi-line strings or escaping
-          printf "%s" "$IOS_FIREBASE_SECRET" > ios/Runner/GoogleService-Info.plist
-          
-          # Verify the file is not empty and looks like a Plist
-          if grep -q "GOOGLE_APP_ID" ios/Runner/GoogleService-Info.plist; then
-            echo "✅ GoogleService-Info.plist created and verified."
-          else
-            echo "❌ ERROR: GoogleService-Info.plist is invalid or IOS_FIREBASE_SECRET is empty!"
-            exit 1
-          fi
-
-      # 🔥 FETCH AD-HOC SIGNING (NOT APP STORE)
       - name: Fetch AdHoc signing files
         script: |
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
@@ -55,23 +38,9 @@ workflows:
           pod install --repo-update
           cd ..
 
-      # ✅ BUILD AD-HOC IPA
-      - name: Build IPA (Release / AdHoc)
+      - name: Build IPA
         script: |
           flutter build ipa --release --no-codesign
 
     artifacts:
       - build/ios/ipa/*.ipa
-
-publishing:
-  scripts:
-    - name: Upload dSYMs to Firebase
-      script: | 
-        # Find the dSYM files in the build artifacts
-        dsymPath=$(find $CM_BUILD_DIR/build/ios/archive/Runner.xcarchive/dSYMs -name "Runner.app.dSYM" | head -1)
-        if [[ -z "$dsymPath" ]]; then
-          echo "No dSYM found"
-        else
-          # Run the Firebase upload script
-          $CM_BUILD_DIR/ios/Pods/FirebaseCrashlytics/upload-symbols --build-phase --validate -ai 1:1091304297452:ios:7e5f2b7c24490690ae66c9 -- $dsymPath
-        fi
