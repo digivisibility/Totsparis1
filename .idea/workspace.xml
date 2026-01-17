@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a49fc148-040f-41f5-ab3f-00f8a489c8d7" name="Changes" comment="Web view 3">
+    <list default="true" id="a49fc148-040f-41f5-ab3f-00f8a489c8d7" name="Changes" comment="Web view 4">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -327,7 +327,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768650159771</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Web view 4">
+      <option name="closed" value="true" />
+      <created>1768651099445</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1768651099445</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -335,7 +343,6 @@
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.plist" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="old ios code copy n deleted firebase json" />
     <MESSAGE value="SSLcoomerce issue" />
     <MESSAGE value="cocoa error" />
     <MESSAGE value="cocoa error 1" />
@@ -360,6 +367,7 @@
     <MESSAGE value="Web view 1" />
     <MESSAGE value="Web view 2" />
     <MESSAGE value="Web view 3" />
-    <option name="LAST_COMMIT_MESSAGE" value="Web view 3" />
+    <MESSAGE value="Web view 4" />
+    <option name="LAST_COMMIT_MESSAGE" value="Web view 4" />
   </component>
 </project>
