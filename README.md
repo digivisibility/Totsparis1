@@ -1,24 +1,12 @@
-# TOTS
-
-A new Flutter project.
-
-## Getting Started
-
-Flutter Update Details : 
-
-Flutter Last Update Date: 25 Nov 2024
-Flutter Version: 3.24.5
-Dart Version : 3.5.4
+Note: I have create another repo where you can convert your website into React Native App by just changing the url of App
+https://github.com/PuneetShivaay/Convert-Website-Into-React-Mobile-Mobile-App 
 
 
+# Convert-Website-into-App / Flutter App
+You can convert your website into app. You need to just simply download this code and update the url to your website url.
+To update the URL navigate to lib>src>app.dart 
+Change the url ('https://vragger.com') to Your website's URL & change the title ('Vragger') to Your App's title.
+![img](https://user-images.githubusercontent.com/56409021/118314543-ea9a8a00-b511-11eb-9afb-0fefad353ca0.png)
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Website to Mobile App Converter: This project explores the capabilities of Flutter to transform web experiences into native-like mobile applications. I developed a user-friendly interface where users can input any website URL, and the application leverages Flutter's WebView widget to display the content within a mobile wrapper. This project allowed me to gain practical experience in cross-platform mobile development and understand the nuances of embedding web content in mobile apps.
