@@ -63,33 +63,24 @@ class _WebViewContainerState extends State<WebViewContainer> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          elevation: 0,
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () => _controller.reload(),
-            ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            WebViewWidget(controller: _controller),
-            if (_progress < 1.0)
-              LinearProgressIndicator(
-                value: _progress,
-                backgroundColor: Colors.transparent,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).primaryColor,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              WebViewWidget(controller: _controller),
+              if (_progress < 1.0)
+                LinearProgressIndicator(
+                  value: _progress,
+                  backgroundColor: Colors.transparent,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).primaryColor,
+                  ),
                 ),
-              ),
-            if (_isLoading && _progress == 0)
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
-          ],
+              if (_isLoading && _progress == 0)
+                const Center(
+                  child: CircularProgressIndicator(),
+                ),
+            ],
+          ),
         ),
       ),
     );

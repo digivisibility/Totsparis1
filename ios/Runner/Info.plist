@@ -62,5 +62,9 @@
 	<array>
 		<string>_dartobservatory._tcp</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location when open to provide location-based notifications and enhance your browsing experience.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to provide location-based notifications even when the app is in the background.</string>
 </dict>
 </plist>
