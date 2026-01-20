@@ -43,6 +43,10 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
